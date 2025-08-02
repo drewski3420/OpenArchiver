@@ -13,14 +13,16 @@ COPY packages/backend/package.json ./packages/backend/
 COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/types/package.json ./packages/types/
 
-# Install all dependencies 
+# Install all dependencies to create workspace links
 RUN pnpm install --frozen-lockfile --prod=false
 
 # Copy the rest of the source code
 COPY . .
 
-# Build all packages.
-RUN pnpm build
+# Build packages in order.
+RUN pnpm --filter @open-archiver/types build
+RUN pnpm --filter @open-archiver/backend build
+RUN pnpm --filter @open-archiver/frontend build
 
 # 2. Production Stage: Install only production dependencies and copy built artifacts
 FROM node:22-alpine AS production
