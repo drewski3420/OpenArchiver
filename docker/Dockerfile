@@ -19,11 +19,8 @@ RUN pnpm install --frozen-lockfile --prod=false
 # Copy the rest of the source code
 COPY . .
 
-# We need to build the types package first because other packages depend on it
-RUN pnpm --filter @open-archiver/types build
-
-# Build all other packages
-RUN pnpm --filter=!@open-archiver/types build
+# Build all packages.
+RUN pnpm build
 
 # 2. Production Stage: Install only production dependencies and copy built artifacts
 FROM node:22-alpine AS production

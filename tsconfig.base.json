@@ -8,6 +8,9 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-        "isolatedModules": true
+        "isolatedModules": true,
+        "paths": {
+            "@open-archiver/types": ["./packages/types/src/index.ts"]
+        }
     }
 }
