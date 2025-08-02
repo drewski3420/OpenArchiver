@@ -13,8 +13,8 @@ COPY packages/backend/package.json ./packages/backend/
 COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/types/package.json ./packages/types/
 
-# Install all dependencies to create workspace links
-RUN pnpm install --frozen-lockfile --prod=false
+# Install all dependencies. Use --shamefully-hoist to create a flat node_modules structure
+RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=false
 
 # Copy the rest of the source code
 COPY . .
