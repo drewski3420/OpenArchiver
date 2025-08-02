@@ -19,8 +19,9 @@ RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=false
 # Copy the rest of the source code
 COPY . .
 
-# Build all packages in the workspace, respecting the dependency graph
-RUN pnpm --stream -r build
+# Build the backend and all its dependencies, then build the frontend
+RUN pnpm --filter @open-archiver/backend... --stream build
+RUN pnpm --filter @open-archiver/frontend --stream build
 
 # 2. Production Stage: Install only production dependencies and copy built artifacts
 FROM node:22-alpine AS production
