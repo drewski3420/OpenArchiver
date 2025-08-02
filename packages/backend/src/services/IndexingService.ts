@@ -1,4 +1,4 @@
-import { Attachment, EmailDocument, EmailObject } from '@open-archiver/types';
+import { Attachment, EmailAddress, EmailDocument, EmailObject } from '@open-archiver/types';
 import { SearchService } from './SearchService';
 import { StorageService } from './StorageService';
 import { extractText } from '../helpers/textExtractor';
@@ -119,9 +119,9 @@ export class IndexingService {
         return {
             id: archivedEmailId,
             from: email.from[0]?.address,
-            to: email.to.map((i) => i.address) || [],
-            cc: email.cc?.map((i) => i.address) || [],
-            bcc: email.bcc?.map((i) => i.address) || [],
+            to: email.to.map((i: EmailAddress) => i.address) || [],
+            cc: email.cc?.map((i: EmailAddress) => i.address) || [],
+            bcc: email.bcc?.map((i: EmailAddress) => i.address) || [],
             subject: email.subject || '',
             body: email.body || email.html || '',
             attachments: extractedAttachments,
