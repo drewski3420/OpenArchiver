@@ -24,22 +24,6 @@ export default async (job: Job<IContinuousSyncJob>) => {
 
     try {
         const jobs = [];
-        // if (!connector.listAllUsers) {
-        //     // This is for single-mailbox providers like Generic IMAP
-        //     let userEmail = 'Default';
-        //     if (connector instanceof ImapConnector) {
-        //         userEmail = connector.returnImapUserEmail();
-        //     }
-        //     jobs.push({
-        //         name: 'process-mailbox',
-        //         queueName: 'ingestion',
-        //         data: {
-        //             ingestionSourceId: source.id,
-        //             userEmail: userEmail
-        //         }
-        //     });
-        // } else {
-        // For multi-mailbox providers like Google Workspace and M365
         for await (const user of connector.listAllUsers()) {
             if (user.primaryEmail) {
                 jobs.push({
@@ -48,6 +32,14 @@ export default async (job: Job<IContinuousSyncJob>) => {
                     data: {
                         ingestionSourceId: source.id,
                         userEmail: user.primaryEmail
+                    },
+                    opts: {
+                        removeOnComplete: {
+                            age: 60 * 10 // 10 minutes
+                        },
+                        removeOnFail: {
+                            age: 60 * 30 // 30 minutes
+                        }
                     }
                 });
             }
@@ -62,7 +54,11 @@ export default async (job: Job<IContinuousSyncJob>) => {
                     ingestionSourceId,
                     isInitialImport: false
                 },
-                children: jobs
+                children: jobs,
+                opts: {
+                    removeOnComplete: true,
+                    removeOnFail: true
+                }
             });
         }
 

@@ -179,7 +179,8 @@
 										<DropdownMenu.Item onclick={() => openEditDialog(source)}
 											>Edit</DropdownMenu.Item
 										>
-										<DropdownMenu.Item onclick={() => handleSync(source.id)}>Sync</DropdownMenu.Item
+										<DropdownMenu.Item onclick={() => handleSync(source.id)}
+											>Force sync</DropdownMenu.Item
 										>
 										<DropdownMenu.Separator />
 										<DropdownMenu.Item class="text-red-600" onclick={() => openDeleteDialog(source)}

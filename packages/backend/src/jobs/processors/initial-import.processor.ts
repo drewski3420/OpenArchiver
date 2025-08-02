@@ -33,6 +33,14 @@ export default async (job: Job<IInitialImportJob>) => {
                     data: {
                         ingestionSourceId,
                         userEmail: user.primaryEmail,
+                    },
+                    opts: {
+                        removeOnComplete: {
+                            age: 60 * 10 // 10 minutes
+                        },
+                        removeOnFail: {
+                            age: 60 * 30 // 30 minutes
+                        }
                     }
                 });
                 userCount++;
@@ -49,7 +57,11 @@ export default async (job: Job<IInitialImportJob>) => {
                     userCount,
                     isInitialImport: true
                 },
-                children: jobs
+                children: jobs,
+                opts: {
+                    removeOnComplete: true,
+                    removeOnFail: true
+                }
             });
         } else {
             // If there are no users, we can consider the import finished and set to active

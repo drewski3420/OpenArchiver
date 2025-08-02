@@ -23,7 +23,8 @@ export default defineConfig({
         nav: [
             { text: 'Home', link: '/' },
             { text: 'Github', link: 'https://github.com/LogicLabs-OU/OpenArchiver' },
-            { text: "Website", link: 'https://openarchiver.com/' }
+            { text: "Website", link: 'https://openarchiver.com/' },
+            { text: "Discord", link: 'https://discord.gg/Qpv4BmHp' }
         ],
         sidebar: [
             {

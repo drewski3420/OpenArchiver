@@ -10,6 +10,7 @@ import { and, eq } from 'drizzle-orm';
 import { CryptoService } from './CryptoService';
 import { EmailProviderFactory } from './EmailProviderFactory';
 import { ingestionQueue } from '../jobs/queues';
+import type { JobType } from 'bullmq';
 import { StorageService } from './StorageService';
 import type { IInitialImportJob, EmailObject } from '@open-archiver/types';
 import { archivedEmails, attachments as attachmentsSchema, emailAttachments } from '../database/schema';
@@ -142,10 +143,28 @@ export class IngestionService {
 
     public static async triggerForceSync(id: string): Promise<void> {
         const source = await this.findById(id);
-
+        logger.info({ ingestionSourceId: id }, 'Force syncing started.');
         if (!source) {
             throw new Error('Ingestion source not found');
         }
+
+        // Clean up existing jobs for this source to break any stuck flows
+        const jobTypes: JobType[] = ['active', 'waiting', 'failed', 'delayed', 'paused'];
+        const jobs = await ingestionQueue.getJobs(jobTypes);
+        for (const job of jobs) {
+            if (job.data.ingestionSourceId === id) {
+                try {
+                    await job.remove();
+                    logger.info({ jobId: job.id, ingestionSourceId: id }, 'Removed stale job during force sync.');
+                } catch (error) {
+                    logger.error({ err: error, jobId: job.id }, 'Failed to remove stale job.');
+                }
+            }
+        }
+
+        // Reset status to 'active'
+        await this.update(id, { status: 'active', lastSyncStatusMessage: 'Force sync triggered by user.' });
+
 
         await ingestionQueue.add('continuous-sync', { ingestionSourceId: source.id });
     }
