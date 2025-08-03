@@ -20,7 +20,7 @@ RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=false
 # Copy the rest of the source code
 COPY . .
 
-# Build packages in order.
+# Build all packages.
 RUN pnpm build
 
 # 2. Production Stage: Install only production dependencies and copy built artifacts
