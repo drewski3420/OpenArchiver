@@ -12,6 +12,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY packages/backend/package.json ./packages/backend/
 COPY packages/frontend/package.json ./packages/frontend/
 COPY packages/types/package.json ./packages/types/
+COPY packages/frontend/svelte.config.js ./packages/frontend/
 
 # Install all dependencies. Use --shamefully-hoist to create a flat node_modules structure
 RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=false
@@ -20,9 +21,7 @@ RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=false
 COPY . .
 
 # Build packages in order.
-RUN pnpm --filter @open-archiver/types build
-RUN pnpm --filter @open-archiver/backend build
-RUN pnpm --filter @open-archiver/frontend build
+RUN pnpm build
 
 # 2. Production Stage: Install only production dependencies and copy built artifacts
 FROM node:22-alpine AS production

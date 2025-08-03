@@ -64,6 +64,10 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Archived emails - OpenArchiver</title>
+</svelte:head>
+
 <div class="mb-4 flex items-center justify-between">
 	<h1 class="text-2xl font-bold">Archived Emails</h1>
 	{#if ingestionSources.length > 0}
