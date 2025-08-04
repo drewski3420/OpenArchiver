@@ -27,6 +27,16 @@
 	};
 
 	const openEditDialog = (source: IngestionSource) => {
+		if (data.isDemo) {
+			setAlert({
+				type: 'warning',
+				title: 'Demo mode',
+				message: 'Editing is now allowed in demo mode.',
+				duration: 5000,
+				show: true
+			});
+			return;
+		}
 		selectedSource = source;
 		isDialogOpen = true;
 	};
@@ -40,7 +50,18 @@
 		if (!sourceToDelete) return;
 		isDeleting = true;
 		try {
-			await api(`/ingestion-sources/${sourceToDelete.id}`, { method: 'DELETE' });
+			const res = await api(`/ingestion-sources/${sourceToDelete.id}`, { method: 'DELETE' });
+			if (!res.ok) {
+				const errorBody = await res.json();
+				setAlert({
+					type: 'error',
+					title: 'Failed to delete ingestion',
+					message: errorBody.message || JSON.stringify(errorBody),
+					duration: 5000,
+					show: true
+				});
+				return;
+			}
 			ingestionSources = ingestionSources.filter((s) => s.id !== sourceToDelete!.id);
 			isDeleteDialogOpen = false;
 			sourceToDelete = null;
@@ -50,7 +71,18 @@
 	};
 
 	const handleSync = async (id: string) => {
-		await api(`/ingestion-sources/${id}/sync`, { method: 'POST' });
+		const res = await api(`/ingestion-sources/${id}/sync`, { method: 'POST' });
+		if (!res.ok) {
+			const errorBody = await res.json();
+			setAlert({
+				type: 'error',
+				title: 'Failed to trigger force sync ingestion',
+				message: errorBody.message || JSON.stringify(errorBody),
+				duration: 5000,
+				show: true
+			});
+			return;
+		}
 		const updatedSources = ingestionSources.map((s) => {
 			if (s.id === id) {
 				return { ...s, status: 'syncing' as const };
@@ -61,24 +93,36 @@
 	};
 
 	const handleToggle = async (source: IngestionSource) => {
-		const isPaused = source.status === 'paused';
-		const newStatus = isPaused ? 'active' : 'paused';
+		try {
+			const isPaused = source.status === 'paused';
+			const newStatus = isPaused ? 'active' : 'paused';
+			if (data.isDemo) {
+				throw Error('This operation is not allowed in demo mode.');
+			}
+			if (newStatus === 'paused') {
+				await api(`/ingestion-sources/${source.id}/pause`, { method: 'POST' });
+			} else {
+				await api(`/ingestion-sources/${source.id}`, {
+					method: 'PUT',
+					body: JSON.stringify({ status: 'active' })
+				});
+			}
 
-		if (newStatus === 'paused') {
-			await api(`/ingestion-sources/${source.id}/pause`, { method: 'POST' });
-		} else {
-			await api(`/ingestion-sources/${source.id}`, {
-				method: 'PUT',
-				body: JSON.stringify({ status: 'active' })
+			ingestionSources = ingestionSources.map((s) => {
+				if (s.id === source.id) {
+					return { ...s, status: newStatus };
+				}
+				return s;
+			});
+		} catch (e) {
+			setAlert({
+				type: 'error',
+				title: 'Failed to trigger force sync ingestion',
+				message: e instanceof Error ? e.message : JSON.stringify(e),
+				duration: 5000,
+				show: true
 			});
 		}
-
-		ingestionSources = ingestionSources.map((s) => {
-			if (s.id === source.id) {
-				return { ...s, status: newStatus };
-			}
-			return s;
-		});
 	};
 
 	const handleFormSubmit = async (formData: CreateIngestionSourceDto) => {
@@ -155,7 +199,7 @@
 <div class="">
 	<div class="mb-4 flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Ingestion Sources</h1>
-		<Button onclick={openCreateDialog}>Create New</Button>
+		<Button onclick={openCreateDialog} disabled={data.isDemo}>Create New</Button>
 	</div>
 
 	<div class="rounded-md border">
