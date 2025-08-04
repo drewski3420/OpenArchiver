@@ -24,7 +24,7 @@ export default defineConfig({
             { text: 'Home', link: '/' },
             { text: 'Github', link: 'https://github.com/LogicLabs-OU/OpenArchiver' },
             { text: "Website", link: 'https://openarchiver.com/' },
-            { text: "Discord", link: 'https://discord.gg/Qpv4BmHp' }
+            { text: "Discord", link: 'https://discord.gg/MTtD7BhuTQ' }
         ],
         sidebar: [
             {
