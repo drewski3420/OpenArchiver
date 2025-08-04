@@ -1,14 +1,35 @@
 import { Request, Response } from 'express';
 import { IngestionService } from '../../services/IngestionService';
-import { CreateIngestionSourceDto, UpdateIngestionSourceDto } from '@open-archiver/types';
+import {
+    CreateIngestionSourceDto,
+    UpdateIngestionSourceDto,
+    IngestionSource,
+    SafeIngestionSource
+} from '@open-archiver/types';
 import { logger } from '../../config/logger';
+import { config } from '../../config';
 
 export class IngestionController {
+    /**
+     * Converts an IngestionSource object to a safe version for client-side consumption
+     * by removing the credentials.
+     * @param source The full IngestionSource object.
+     * @returns An object conforming to the SafeIngestionSource type.
+     */
+    private toSafeIngestionSource(source: IngestionSource): SafeIngestionSource {
+        const { credentials, ...safeSource } = source;
+        return safeSource;
+    }
+
     public create = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const dto: CreateIngestionSourceDto = req.body;
             const newSource = await IngestionService.create(dto);
-            return res.status(201).json(newSource);
+            const safeSource = this.toSafeIngestionSource(newSource);
+            return res.status(201).json(safeSource);
         } catch (error: any) {
             logger.error({ err: error }, 'Create ingestion source error');
             // Return a 400 Bad Request for connection errors
@@ -19,7 +40,8 @@ export class IngestionController {
     public findAll = async (req: Request, res: Response): Promise<Response> => {
         try {
             const sources = await IngestionService.findAll();
-            return res.status(200).json(sources);
+            const safeSources = sources.map(this.toSafeIngestionSource);
+            return res.status(200).json(safeSources);
         } catch (error) {
             console.error('Find all ingestion sources error:', error);
             return res.status(500).json({ message: 'An internal server error occurred' });
@@ -30,7 +52,8 @@ export class IngestionController {
         try {
             const { id } = req.params;
             const source = await IngestionService.findById(id);
-            return res.status(200).json(source);
+            const safeSource = this.toSafeIngestionSource(source);
+            return res.status(200).json(safeSource);
         } catch (error) {
             console.error(`Find ingestion source by id ${req.params.id} error:`, error);
             if (error instanceof Error && error.message === 'Ingestion source not found') {
@@ -41,11 +64,15 @@ export class IngestionController {
     };
 
     public update = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const { id } = req.params;
             const dto: UpdateIngestionSourceDto = req.body;
             const updatedSource = await IngestionService.update(id, dto);
-            return res.status(200).json(updatedSource);
+            const safeSource = this.toSafeIngestionSource(updatedSource);
+            return res.status(200).json(safeSource);
         } catch (error) {
             console.error(`Update ingestion source ${req.params.id} error:`, error);
             if (error instanceof Error && error.message === 'Ingestion source not found') {
@@ -56,6 +83,9 @@ export class IngestionController {
     };
 
     public delete = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const { id } = req.params;
             await IngestionService.delete(id);
@@ -70,6 +100,9 @@ export class IngestionController {
     };
 
     public triggerInitialImport = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const { id } = req.params;
             await IngestionService.triggerInitialImport(id);
@@ -84,10 +117,14 @@ export class IngestionController {
     };
 
     public pause = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const { id } = req.params;
             const updatedSource = await IngestionService.update(id, { status: 'paused' });
-            return res.status(200).json(updatedSource);
+            const safeSource = this.toSafeIngestionSource(updatedSource);
+            return res.status(200).json(safeSource);
         } catch (error) {
             console.error(`Pause ingestion source ${req.params.id} error:`, error);
             if (error instanceof Error && error.message === 'Ingestion source not found') {
@@ -98,6 +135,9 @@ export class IngestionController {
     };
 
     public triggerForceSync = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res.status(403).json({ message: 'This operation is not allowed in demo mode.' });
+        }
         try {
             const { id } = req.params;
             await IngestionService.triggerForceSync(id);

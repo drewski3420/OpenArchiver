@@ -81,6 +81,13 @@ export interface IngestionSource {
     syncState?: SyncState | null;
 }
 
+/**
+ * Represents an ingestion source with sensitive credential information removed.
+ * This type is safe to use in client-side applications or API responses
+ * where exposing credentials would be a security risk.
+ */
+export type SafeIngestionSource = Omit<IngestionSource, 'credentials'>;
+
 export interface CreateIngestionSourceDto {
     name: string;
     provider: IngestionProvider;

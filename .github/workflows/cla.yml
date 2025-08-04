@@ -26,7 +26,7 @@ jobs:
                   path-to-signatures: 'signatures/version1/cla.json'
                   path-to-document: 'https://github.com/LogicLabs-OU/OpenArchiver/tree/main/.github/CLA.md'
                   branch: 'main'
-                  allowlist: ''
+                  allowlist: 'wayneshn'
 
                   remote-organization-name: 'LogicLabs-OU'
                   remote-repository-name: 'cla-db'
