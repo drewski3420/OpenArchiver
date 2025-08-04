@@ -44,7 +44,7 @@ Please consult your email provider's documentation to see if they support app pa
     -   At the bottom, click **"Select app"** and choose **"Other (Custom name)"**.
     -   Give it a name you'll recognize, like "OpenArchiver".
     -   Click **"Generate"**.
-4.  **Use the Password:** A 16-digit password will be displayed. Copy this password (without the spaces) and paste it into the **Password** field in the OpenArchiver ingestion source form.
+4.  **Use the Password:** A 16-digit password will be displayed. Copy this password and paste it into the **Password** field in the OpenArchiver ingestion source form.
 
 ### How to Obtain an App Password for Outlook/Microsoft Accounts
 
