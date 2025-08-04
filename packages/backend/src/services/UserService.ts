@@ -3,7 +3,7 @@ import type { User } from '@open-archiver/types';
 import type { IUserService } from './AuthService';
 
 // This is a mock implementation of the IUserService.
-// In a real application, this service would interact with a database.
+// Later on, this service would interact with a database.
 export class AdminUserService implements IUserService {
     #users: User[] = [];
 
@@ -24,7 +24,7 @@ export class AdminUserService implements IUserService {
     }
 
     public async findByEmail(email: string): Promise<User | null> {
-        // In a real implementation, this would be a database query.
+        // once user service is ready, this would be a database query.
         const user = this.#users.find(u => u.email === email);
         return user || null;
     }

@@ -4,7 +4,8 @@
 	>
 		<div class="flex flex-col items-center gap-2">
 			<p class="  text-balance text-center text-xs font-medium leading-loose">
-				© {new Date().getFullYear()} Open Archiver. All rights reserved.
+				© {new Date().getFullYear()}
+				<a href="https://openarchiver.com/" target="_blank">Open Archiver</a>. All rights reserved.
 			</p>
 		</div>
 	</div>

@@ -10,9 +10,10 @@
 	import { api } from '$lib/api.client';
 	import type { IngestionSource, CreateIngestionSourceDto } from '@open-archiver/types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import { setAlert } from '$lib/components/custom/alert/alert-state.svelte';
+	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
 
 	let { data }: { data: PageData } = $props();
-
 	let ingestionSources = $state(data.ingestionSources);
 	let isDialogOpen = $state(false);
 	let isDeleteDialogOpen = $state(false);
@@ -81,26 +82,48 @@
 	};
 
 	const handleFormSubmit = async (formData: CreateIngestionSourceDto) => {
-		if (selectedSource) {
-			// Update
-			const response = await api(`/ingestion-sources/${selectedSource.id}`, {
-				method: 'PUT',
-				body: JSON.stringify(formData)
+		try {
+			if (selectedSource) {
+				// Update
+				const response = await api(`/ingestion-sources/${selectedSource.id}`, {
+					method: 'PUT',
+					body: JSON.stringify(formData)
+				});
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.message || 'Failed to update source.');
+				}
+				const updatedSource = await response.json();
+				ingestionSources = ingestionSources.map((s) =>
+					s.id === updatedSource.id ? updatedSource : s
+				);
+			} else {
+				// Create
+				const response = await api('/ingestion-sources', {
+					method: 'POST',
+					body: JSON.stringify(formData)
+				});
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.message || 'Failed to create source.');
+				}
+				const newSource = await response.json();
+				ingestionSources = [...ingestionSources, newSource];
+			}
+			isDialogOpen = false;
+		} catch (error) {
+			let message = 'An unknown error occurred.';
+			if (error instanceof Error) {
+				message = error.message;
+			}
+			setAlert({
+				type: 'error',
+				title: 'Authentication Failed',
+				message,
+				duration: 5000,
+				show: true
 			});
-			const updatedSource = await response.json();
-			ingestionSources = ingestionSources.map((s) =>
-				s.id === updatedSource.id ? updatedSource : s
-			);
-		} else {
-			// Create
-			const response = await api('/ingestion-sources', {
-				method: 'POST',
-				body: JSON.stringify(formData)
-			});
-			const newSource = await response.json();
-			ingestionSources = [...ingestionSources, newSource];
 		}
-		isDialogOpen = false;
 	};
 
 	function getStatusClasses(status: IngestionSource['status']): string {
@@ -156,9 +179,21 @@
 							</Table.Cell>
 							<Table.Cell class="capitalize">{source.provider.split('_').join(' ')}</Table.Cell>
 							<Table.Cell class="min-w-24">
-								<Badge class="{getStatusClasses(source.status)} capitalize">
-									{source.status.split('_').join(' ')}
-								</Badge>
+								<HoverCard.Root>
+									<HoverCard.Trigger>
+										<Badge class="{getStatusClasses(source.status)} cursor-pointer capitalize">
+											{source.status.split('_').join(' ')}
+										</Badge>
+									</HoverCard.Trigger>
+									<HoverCard.Content class="{getStatusClasses(source.status)} ">
+										<div class="flex flex-col space-y-4 text-sm">
+											<p class=" font-mono">
+												<b>Last sync message:</b>
+												{source.lastSyncStatusMessage || 'Empty'}
+											</p>
+										</div>
+									</HoverCard.Content>
+								</HoverCard.Root>
 							</Table.Cell>
 							<Table.Cell>
 								<Switch
@@ -166,7 +201,7 @@
 									class="cursor-pointer"
 									checked={source.status !== 'paused'}
 									onCheckedChange={() => handleToggle(source)}
-									disabled={source.status !== 'active' && source.status !== 'paused'}
+									disabled={source.status === 'importing' || source.status === 'syncing'}
 								/>
 							</Table.Cell>
 							<Table.Cell>{new Date(source.createdAt).toLocaleDateString()}</Table.Cell>

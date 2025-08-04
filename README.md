@@ -21,7 +21,7 @@ _Full-text search across all your emails and attachments_
 
 ## Community
 
-Join our community to ask questions, share your projects, and connect with other developers.
+We are committed to build an engaging community around Open Archiver, and we are inviting all of you to join our community on Discord to get real-time support and connect with the team.
 
 [![Discord](https://img.shields.io/badge/Join%20our%20Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/Qpv4BmHp)
 

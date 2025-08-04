@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { IngestionService } from '../../services/IngestionService';
 import { CreateIngestionSourceDto, UpdateIngestionSourceDto } from '@open-archiver/types';
+import { logger } from '../../config/logger';
 
 export class IngestionController {
     public create = async (req: Request, res: Response): Promise<Response> => {
@@ -8,9 +9,10 @@ export class IngestionController {
             const dto: CreateIngestionSourceDto = req.body;
             const newSource = await IngestionService.create(dto);
             return res.status(201).json(newSource);
-        } catch (error) {
-            console.error('Create ingestion source error:', error);
-            return res.status(500).json({ message: 'An internal server error occurred' });
+        } catch (error: any) {
+            logger.error({ err: error }, 'Create ingestion source error');
+            // Return a 400 Bad Request for connection errors
+            return res.status(400).json({ message: error.message || 'Failed to create ingestion source due to a connection error.' });
         }
     };
 

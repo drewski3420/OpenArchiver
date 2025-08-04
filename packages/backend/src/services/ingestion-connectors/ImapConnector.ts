@@ -38,9 +38,12 @@ export class ImapConnector implements IEmailConnector {
         try {
             await this.client.connect();
             this.isConnected = true;
-        } catch (err) {
+        } catch (err: any) {
             this.isConnected = false;
             logger.error({ err }, 'IMAP connection failed');
+            if (err.responseText) {
+                throw new Error(`IMAP Connection Error: ${err.responseText}`);
+            }
             throw err;
         }
     }
@@ -62,7 +65,7 @@ export class ImapConnector implements IEmailConnector {
             return true;
         } catch (error) {
             logger.error({ error }, 'Failed to verify IMAP connection');
-            return false;
+            throw error;
         }
     }
 

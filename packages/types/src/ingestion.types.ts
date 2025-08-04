@@ -116,3 +116,9 @@ export type MailboxUser = {
     primaryEmail: string;
     displayName: string;
 };
+
+
+export type ProcessMailboxError = {
+    error: boolean;
+    message: string;
+};

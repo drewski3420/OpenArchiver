@@ -80,7 +80,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
             return true;
         } catch (error) {
             logger.error({ err: error }, 'Failed to verify Google Workspace connection');
-            return false;
+            throw error;
         }
     }
 
@@ -165,41 +165,49 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                 if (historyRecord.messagesAdded) {
                     for (const messageAdded of historyRecord.messagesAdded) {
                         if (messageAdded.message?.id) {
-                            const msgResponse = await gmail.users.messages.get({
-                                userId: 'me',
-                                id: messageAdded.message.id,
-                                format: 'RAW'
-                            });
+                            try {
+                                const msgResponse = await gmail.users.messages.get({
+                                    userId: 'me',
+                                    id: messageAdded.message.id,
+                                    format: 'RAW'
+                                });
 
-                            if (msgResponse.data.raw) {
-                                const rawEmail = Buffer.from(msgResponse.data.raw, 'base64url');
-                                const parsedEmail: ParsedMail = await simpleParser(rawEmail);
-                                const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
-                                    filename: attachment.filename || 'untitled',
-                                    contentType: attachment.contentType,
-                                    size: attachment.size,
-                                    content: attachment.content as Buffer
-                                }));
-                                const mapAddresses = (addresses: AddressObject | AddressObject[] | undefined): EmailAddress[] => {
-                                    if (!addresses) return [];
-                                    const addressArray = Array.isArray(addresses) ? addresses : [addresses];
-                                    return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
-                                };
-                                yield {
-                                    id: msgResponse.data.id!,
-                                    userEmail: userEmail,
-                                    eml: rawEmail,
-                                    from: mapAddresses(parsedEmail.from),
-                                    to: mapAddresses(parsedEmail.to),
-                                    cc: mapAddresses(parsedEmail.cc),
-                                    bcc: mapAddresses(parsedEmail.bcc),
-                                    subject: parsedEmail.subject || '',
-                                    body: parsedEmail.text || '',
-                                    html: parsedEmail.html || '',
-                                    headers: parsedEmail.headers,
-                                    attachments,
-                                    receivedAt: parsedEmail.date || new Date(),
-                                };
+                                if (msgResponse.data.raw) {
+                                    const rawEmail = Buffer.from(msgResponse.data.raw, 'base64url');
+                                    const parsedEmail: ParsedMail = await simpleParser(rawEmail);
+                                    const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
+                                        filename: attachment.filename || 'untitled',
+                                        contentType: attachment.contentType,
+                                        size: attachment.size,
+                                        content: attachment.content as Buffer
+                                    }));
+                                    const mapAddresses = (addresses: AddressObject | AddressObject[] | undefined): EmailAddress[] => {
+                                        if (!addresses) return [];
+                                        const addressArray = Array.isArray(addresses) ? addresses : [addresses];
+                                        return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
+                                    };
+                                    yield {
+                                        id: msgResponse.data.id!,
+                                        userEmail: userEmail,
+                                        eml: rawEmail,
+                                        from: mapAddresses(parsedEmail.from),
+                                        to: mapAddresses(parsedEmail.to),
+                                        cc: mapAddresses(parsedEmail.cc),
+                                        bcc: mapAddresses(parsedEmail.bcc),
+                                        subject: parsedEmail.subject || '',
+                                        body: parsedEmail.text || '',
+                                        html: parsedEmail.html || '',
+                                        headers: parsedEmail.headers,
+                                        attachments,
+                                        receivedAt: parsedEmail.date || new Date(),
+                                    };
+                                }
+                            } catch (error: any) {
+                                if (error.code === 404) {
+                                    logger.warn({ messageId: messageAdded.message.id, userEmail }, 'Message not found, skipping.');
+                                } else {
+                                    throw error;
+                                }
                             }
                         }
                     }
@@ -229,41 +237,49 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
 
             for (const message of messages) {
                 if (message.id) {
-                    const msgResponse = await gmail.users.messages.get({
-                        userId: 'me',
-                        id: message.id,
-                        format: 'RAW'
-                    });
+                    try {
+                        const msgResponse = await gmail.users.messages.get({
+                            userId: 'me',
+                            id: message.id,
+                            format: 'RAW'
+                        });
 
-                    if (msgResponse.data.raw) {
-                        const rawEmail = Buffer.from(msgResponse.data.raw, 'base64url');
-                        const parsedEmail: ParsedMail = await simpleParser(rawEmail);
-                        const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
-                            filename: attachment.filename || 'untitled',
-                            contentType: attachment.contentType,
-                            size: attachment.size,
-                            content: attachment.content as Buffer
-                        }));
-                        const mapAddresses = (addresses: AddressObject | AddressObject[] | undefined): EmailAddress[] => {
-                            if (!addresses) return [];
-                            const addressArray = Array.isArray(addresses) ? addresses : [addresses];
-                            return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
-                        };
-                        yield {
-                            id: msgResponse.data.id!,
-                            userEmail: userEmail,
-                            eml: rawEmail,
-                            from: mapAddresses(parsedEmail.from),
-                            to: mapAddresses(parsedEmail.to),
-                            cc: mapAddresses(parsedEmail.cc),
-                            bcc: mapAddresses(parsedEmail.bcc),
-                            subject: parsedEmail.subject || '',
-                            body: parsedEmail.text || '',
-                            html: parsedEmail.html || '',
-                            headers: parsedEmail.headers,
-                            attachments,
-                            receivedAt: parsedEmail.date || new Date(),
-                        };
+                        if (msgResponse.data.raw) {
+                            const rawEmail = Buffer.from(msgResponse.data.raw, 'base64url');
+                            const parsedEmail: ParsedMail = await simpleParser(rawEmail);
+                            const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
+                                filename: attachment.filename || 'untitled',
+                                contentType: attachment.contentType,
+                                size: attachment.size,
+                                content: attachment.content as Buffer
+                            }));
+                            const mapAddresses = (addresses: AddressObject | AddressObject[] | undefined): EmailAddress[] => {
+                                if (!addresses) return [];
+                                const addressArray = Array.isArray(addresses) ? addresses : [addresses];
+                                return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
+                            };
+                            yield {
+                                id: msgResponse.data.id!,
+                                userEmail: userEmail,
+                                eml: rawEmail,
+                                from: mapAddresses(parsedEmail.from),
+                                to: mapAddresses(parsedEmail.to),
+                                cc: mapAddresses(parsedEmail.cc),
+                                bcc: mapAddresses(parsedEmail.bcc),
+                                subject: parsedEmail.subject || '',
+                                body: parsedEmail.text || '',
+                                html: parsedEmail.html || '',
+                                headers: parsedEmail.headers,
+                                attachments,
+                                receivedAt: parsedEmail.date || new Date(),
+                            };
+                        }
+                    } catch (error: any) {
+                        if (error.code === 404) {
+                            logger.warn({ messageId: message.id, userEmail }, 'Message not found during initial import, skipping.');
+                        } else {
+                            throw error;
+                        }
                     }
                 }
             }

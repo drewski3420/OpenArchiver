@@ -6,7 +6,7 @@ import type {
     IngestionSource,
     IngestionCredentials
 } from '@open-archiver/types';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { CryptoService } from './CryptoService';
 import { EmailProviderFactory } from './EmailProviderFactory';
 import { ingestionQueue } from '../jobs/queues';
@@ -22,10 +22,16 @@ import { DatabaseService } from './DatabaseService';
 
 
 export class IngestionService {
-    private static decryptSource(source: typeof ingestionSources.$inferSelect): IngestionSource {
+    private static decryptSource(source: typeof ingestionSources.$inferSelect): IngestionSource | null {
         const decryptedCredentials = CryptoService.decryptObject<IngestionCredentials>(
             source.credentials as string
         );
+
+        if (!decryptedCredentials) {
+            logger.error({ sourceId: source.id }, 'Failed to decrypt ingestion source credentials.');
+            return null;
+        }
+
         return { ...source, credentials: decryptedCredentials } as IngestionSource;
     }
 
@@ -43,21 +49,29 @@ export class IngestionService {
         const [newSource] = await db.insert(ingestionSources).values(valuesToInsert).returning();
 
         const decryptedSource = this.decryptSource(newSource);
-
-        // Test the connection
-        const connector = EmailProviderFactory.createConnector(decryptedSource);
-        const isConnected = await connector.testConnection();
-
-        if (isConnected) {
-            return await this.update(decryptedSource.id, { status: 'auth_success' });
+        if (!decryptedSource) {
+            await this.delete(newSource.id);
+            throw new Error('Failed to process newly created ingestion source due to a decryption error.');
         }
+        const connector = EmailProviderFactory.createConnector(decryptedSource);
 
-        return decryptedSource;
+        try {
+            await connector.testConnection();
+            // If connection succeeds, update status to auth_success, which triggers the initial import.
+            return await this.update(decryptedSource.id, { status: 'auth_success' });
+        } catch (error) {
+            // If connection fails, delete the newly created source and throw the error.
+            await this.delete(decryptedSource.id);
+            throw error;
+        }
     }
 
     public static async findAll(): Promise<IngestionSource[]> {
-        const sources = await db.select().from(ingestionSources);
-        return sources.map(this.decryptSource);
+        const sources = await db.select().from(ingestionSources).orderBy(desc(ingestionSources.createdAt));
+        return sources.flatMap(source => {
+            const decrypted = this.decryptSource(source);
+            return decrypted ? [decrypted] : [];
+        });
     }
 
     public static async findById(id: string): Promise<IngestionSource> {
@@ -65,7 +79,11 @@ export class IngestionService {
         if (!source) {
             throw new Error('Ingestion source not found');
         }
-        return this.decryptSource(source);
+        const decryptedSource = this.decryptSource(source);
+        if (!decryptedSource) {
+            throw new Error('Failed to decrypt ingestion source credentials.');
+        }
+        return decryptedSource;
     }
 
     public static async update(
@@ -94,6 +112,10 @@ export class IngestionService {
         }
 
         const decryptedSource = this.decryptSource(updatedSource);
+
+        if (!decryptedSource) {
+            throw new Error('Failed to process updated ingestion source due to a decryption error.');
+        }
 
         // If the status has changed to auth_success, trigger the initial import
         if (
@@ -131,7 +153,15 @@ export class IngestionService {
             .where(eq(ingestionSources.id, id))
             .returning();
 
-        return this.decryptSource(deletedSource);
+        const decryptedSource = this.decryptSource(deletedSource);
+        if (!decryptedSource) {
+            // Even if decryption fails, we should confirm deletion.
+            // We might return a simpler object or just a success message.
+            // For now, we'll indicate the issue but still confirm deletion happened.
+            logger.warn({ sourceId: deletedSource.id }, 'Could not decrypt credentials of deleted source, but deletion was successful.');
+            return { ...deletedSource, credentials: null } as unknown as IngestionSource;
+        }
+        return decryptedSource;
     }
 
     public static async triggerInitialImport(id: string): Promise<void> {
