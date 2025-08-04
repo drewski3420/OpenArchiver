@@ -27,6 +27,12 @@ We are committed to build an engaging community around Open Archiver, and we are
 
 [![Bluesky](https://img.shields.io/badge/Follow%20us%20on%20Bluesky-0265D4?style=for-the-badge&logo=bluesky&logoColor=white)](https://bsky.app/profile/openarchiver.bsky.social)
 
+## Live demo
+
+Check out the live demo here: https://demo.openarchiver.com
+Username: admin@local.com
+Password: openarchiver_demo
+
 ## Key Features
 
 -   **Universal Ingestion**: Connect to Google Workspace, Microsoft 365, and standard IMAP servers to perform initial bulk imports and maintain continuous, real-time synchronization.
