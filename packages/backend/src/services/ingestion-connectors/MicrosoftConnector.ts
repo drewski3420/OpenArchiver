@@ -90,7 +90,7 @@ export class MicrosoftConnector implements IEmailConnector {
             return true;
         } catch (error) {
             logger.error({ err: error }, 'Failed to verify Microsoft 365 connection');
-            return false;
+            throw error;
         }
     }
 

@@ -4,6 +4,8 @@
 	import { theme } from '$lib/stores/theme.store';
 	import { browser } from '$app/environment';
 	import Footer from '$lib/components/custom/Footer.svelte';
+	import { getAlert } from '$lib/components/custom/alert/alert-state.svelte';
+	import Alerts from '$lib/components/custom/alert/Alerts.svelte';
 
 	let { data, children } = $props();
 
@@ -21,6 +23,7 @@
 	});
 </script>
 
+<Alerts {...getAlert()}></Alerts>
 <div class="flex min-h-screen flex-col">
 	<main class="flex-1">
 		{@render children()}

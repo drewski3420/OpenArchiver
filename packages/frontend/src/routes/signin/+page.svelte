@@ -7,23 +7,28 @@
 	import { api } from '$lib/api.client';
 	import { authStore } from '$lib/stores/auth.store';
 	import type { LoginResponse } from '@open-archiver/types';
+	import { setAlert } from '$lib/components/custom/alert/alert-state.svelte';
 
 	let email = '';
 	let password = '';
-	let error: string | null = null;
 	let isLoading = false;
 
 	async function handleSubmit() {
 		isLoading = true;
-		error = null;
 		try {
 			const response = await api('/auth/login', {
 				method: 'POST',
 				body: JSON.stringify({ email, password })
 			});
 			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || 'Failed to login');
+				let errorMessage = 'Failed to login';
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.message || errorMessage;
+				} catch (e) {
+					errorMessage = response.statusText;
+				}
+				throw new Error(errorMessage);
 			}
 
 			const loginData: LoginResponse = await response.json();
@@ -31,7 +36,13 @@
 			// Redirect to a protected page after login
 			goto('/dashboard');
 		} catch (e: any) {
-			error = e.message;
+			setAlert({
+				type: 'error',
+				title: 'Login Failed',
+				message: e.message,
+				duration: 5000,
+				show: true
+			});
 		} finally {
 			isLoading = false;
 		}
@@ -43,7 +54,19 @@
 	<meta name="description" content="Login to your Open Archiver account." />
 </svelte:head>
 
-<div class="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+<div
+	class="flex min-h-screen flex-col items-center justify-center space-y-16 bg-gray-100 dark:bg-gray-900"
+>
+	<div>
+		<a
+			href="https://openarchiver.com/"
+			target="_blank"
+			class="flex flex-row items-center gap-2 font-bold"
+		>
+			<img src="/logos/logo-sq.svg" alt="OpenArchiver Logo" class="h-16 w-16" />
+			<span class="text-2xl">Open Archiver</span>
+		</a>
+	</div>
 	<Card.Root class="w-full max-w-md">
 		<Card.Header class="space-y-1">
 			<Card.Title class="text-2xl">Login</Card.Title>
@@ -59,10 +82,6 @@
 					<Label for="password">Password</Label>
 					<Input id="password" type="password" bind:value={password} required />
 				</div>
-
-				{#if error}
-					<p class="mt-2 text-sm text-red-600">{error}</p>
-				{/if}
 
 				<Button type="submit" class=" w-full" disabled={isLoading}>
 					{isLoading ? 'Logging in...' : 'Login'}

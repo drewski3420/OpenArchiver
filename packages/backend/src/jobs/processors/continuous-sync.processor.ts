@@ -10,8 +10,8 @@ export default async (job: Job<IContinuousSyncJob>) => {
     logger.info({ ingestionSourceId }, 'Starting continuous sync job.');
 
     const source = await IngestionService.findById(ingestionSourceId);
-    if (!source || source.status !== 'active') {
-        logger.warn({ ingestionSourceId, status: source?.status }, 'Skipping continuous sync for non-active source.');
+    if (!source || !['error', 'active'].includes(source.status)) {
+        logger.warn({ ingestionSourceId, status: source?.status }, 'Skipping continuous sync for non-active or non-error source.');
         return;
     }
 
@@ -39,7 +39,8 @@ export default async (job: Job<IContinuousSyncJob>) => {
                         },
                         removeOnFail: {
                             age: 60 * 30 // 30 minutes
-                        }
+                        },
+                        timeout: 1000 * 60 * 30 // 30 minutes
                     }
                 });
             }

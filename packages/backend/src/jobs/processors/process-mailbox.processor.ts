@@ -1,10 +1,18 @@
 import { Job } from 'bullmq';
-import { IProcessMailboxJob, SyncState } from '@open-archiver/types';
+import { IProcessMailboxJob, SyncState, ProcessMailboxError } from '@open-archiver/types';
 import { IngestionService } from '../../services/IngestionService';
 import { logger } from '../../config/logger';
 import { EmailProviderFactory } from '../../services/EmailProviderFactory';
 import { StorageService } from '../../services/StorageService';
 
+/**
+ * This processor handles the ingestion of emails for a single user's mailbox.
+ * If an error occurs during processing (e.g., an API failure),
+ * it catches the exception and returns a structured error object instead of throwing.
+ * This prevents a single failed mailbox from halting the entire sync cycle for all users.
+ * The parent 'sync-cycle-finished' job is responsible for inspecting the results of all
+ * 'process-mailbox' jobs, aggregating successes, and reporting detailed failures.
+ */
 export const processMailboxProcessor = async (job: Job<IProcessMailboxJob, SyncState, string>) => {
     const { ingestionSourceId, userEmail } = job.data;
 
@@ -28,7 +36,6 @@ export const processMailboxProcessor = async (job: Job<IProcessMailboxJob, SyncS
         }
 
         const newSyncState = connector.getUpdatedSyncState(userEmail);
-        console.log('newSyncState, ', newSyncState);
 
         logger.info({ ingestionSourceId, userEmail }, `Finished processing mailbox for user`);
 
@@ -36,6 +43,11 @@ export const processMailboxProcessor = async (job: Job<IProcessMailboxJob, SyncS
         return newSyncState;
     } catch (error) {
         logger.error({ err: error, ingestionSourceId, userEmail }, 'Error processing mailbox');
-        throw error;
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const processMailboxError: ProcessMailboxError = {
+            error: true,
+            message: `Failed to process mailbox for ${userEmail}: ${errorMessage}`
+        };
+        return processMailboxError;
     }
 };

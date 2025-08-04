@@ -1,7 +1,7 @@
-import { Job, FlowJob } from 'bullmq';
+import { Job } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
 import { logger } from '../../config/logger';
-import { SyncState } from '@open-archiver/types';
+import { SyncState, ProcessMailboxError } from '@open-archiver/types';
 import { db } from '../../database';
 import { ingestionSources } from '../../database/schema';
 import { eq } from 'drizzle-orm';
@@ -13,41 +13,65 @@ interface ISyncCycleFinishedJob {
     isInitialImport: boolean;
 }
 
+/**
+ * This processor runs after all 'process-mailbox' jobs for a sync cycle have completed.
+ * It is responsible for aggregating the results and finalizing the sync status.
+ * It inspects the return values of all child jobs to identify successes and failures.
+ *
+ * If any child jobs returned an error object, this processor will:
+ * 1. Mark the overall ingestion status as 'error'.
+ * 2. Aggregate the detailed error messages from all failed jobs.
+ * 3. Save the sync state from any jobs that *did* succeed, preserving partial progress.
+ *
+ * If all child jobs succeeded, it marks the ingestion as 'active' and saves the final
+ * aggregated sync state from all children.
+ *
+ */
 export default async (job: Job<ISyncCycleFinishedJob, any, string>) => {
     const { ingestionSourceId, userCount, isInitialImport } = job.data;
     logger.info({ ingestionSourceId, userCount, isInitialImport }, 'Sync cycle finished job started');
 
     try {
-        const childrenJobs = await job.getChildrenValues<SyncState>();
-        const allSyncStates = Object.values(childrenJobs);
+        const childrenValues = await job.getChildrenValues<SyncState | ProcessMailboxError>();
+        const allChildJobs = Object.values(childrenValues);
+        // if data has error property, it is a failed job
+        const failedJobs = allChildJobs.filter(v => v && (v as any).error) as ProcessMailboxError[];
+        // if data doesn't have error property, it is a successful job with SyncState
+        const successfulJobs = allChildJobs.filter(v => !v || !(v as any).error) as SyncState[];
 
-        // Merge all sync states from children jobs into one
-        const finalSyncState = deepmerge(...allSyncStates.filter(s => s && Object.keys(s).length > 0));
+        const finalSyncState = deepmerge(...successfulJobs.filter(s => s && Object.keys(s).length > 0));
 
-        let message = 'Continuous sync cycle finished successfully.';
-        if (isInitialImport) {
-            message = `Initial import finished for ${userCount} mailboxes.`;
+        let status: 'active' | 'error' = 'active';
+        let message: string;
+
+        if (failedJobs.length > 0) {
+            status = 'error';
+            const errorMessages = failedJobs.map(j => j.message).join('\n');
+            message = `Sync cycle completed with ${failedJobs.length} error(s):\n${errorMessages}`;
+            logger.error({ ingestionSourceId, errors: errorMessages }, 'Sync cycle finished with errors.');
+        } else {
+            message = 'Continuous sync cycle finished successfully.';
+            if (isInitialImport) {
+                message = `Initial import finished for ${userCount} mailboxes.`;
+            }
+            logger.info({ ingestionSourceId }, 'Successfully updated status and final sync state.');
         }
 
-        // Update the database with the final aggregated sync state
         await db
             .update(ingestionSources)
             .set({
-                status: 'active',
+                status,
                 lastSyncFinishedAt: new Date(),
                 lastSyncStatusMessage: message,
                 syncState: finalSyncState
             })
             .where(eq(ingestionSources.id, ingestionSourceId));
-
-        logger.info({ ingestionSourceId }, 'Successfully updated status and final sync state.');
     } catch (error) {
-        logger.error({ err: error, ingestionSourceId }, 'Failed to process finished sync cycle.');
-        // If this fails, we should probably set the status to 'error' to indicate a problem.
+        logger.error({ err: error, ingestionSourceId }, 'An unexpected error occurred while finalizing the sync cycle.');
         await IngestionService.update(ingestionSourceId, {
             status: 'error',
             lastSyncFinishedAt: new Date(),
-            lastSyncStatusMessage: 'Failed to finalize sync cycle and update sync state.'
+            lastSyncStatusMessage: 'An unexpected error occurred while finalizing the sync cycle.'
         });
     }
 };

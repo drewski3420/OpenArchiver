@@ -151,6 +151,9 @@ importers:
 
   packages/frontend:
     dependencies:
+      '@iconify/svelte':
+        specifier: ^5.0.1
+        version: 5.0.1(svelte@5.35.5)
       '@open-archiver/types':
         specifier: workspace:*
         version: link:../types
@@ -212,6 +215,9 @@ importers:
       layerchart:
         specifier: 2.0.0-next.27
         version: 2.0.0-next.27(svelte@5.35.5)
+      mode-watcher:
+        specifier: ^1.1.0
+        version: 1.1.0(svelte@5.35.5)
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
@@ -227,6 +233,9 @@ importers:
       svelte-check:
         specifier: ^4.0.0
         version: 4.2.2(picomatch@4.0.2)(svelte@5.35.5)(typescript@5.8.3)
+      svelte-sonner:
+        specifier: ^1.0.5
+        version: 1.0.5(svelte@5.35.5)
       tailwindcss:
         specifier: ^4.0.0
         version: 4.1.11
@@ -1014,6 +1023,11 @@ packages:
   '@iconify-json/simple-icons@1.2.44':
     resolution: {integrity: sha512-CdWgSPygwDlDbKtDWjvi3NtUefnkoepXv90n3dQxJerqzD9kI+nEJOiWUBM+eOyMYQKtxBpLWFBrgeotF0IZKw==}
 
+  '@iconify/svelte@5.0.1':
+    resolution: {integrity: sha512-nR1ApafyeRDcsx6ytd+0mzaY0ASYfG5YBW9dN8rUWxwi792/HX401qAZEkXSjT0iHm2Dgua+PwXDs/3ttJhkqQ==}
+    peerDependencies:
+      svelte: '>4.0.0'
+
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
 
@@ -1365,6 +1379,7 @@ packages:
   '@smithy/middleware-endpoint@4.1.14':
     resolution: {integrity: sha512-+BGLpK5D93gCcSEceaaYhUD/+OCGXM1IDaq/jKUQ+ujB0PTWlWN85noodKw/IPFZhIKFCNEe19PGd/reUMeLSQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: Please upgrade to @smithy/middleware-endpoint@4.1.15 or higher to fix a bug preventing the resolution of ENV and config file custom endpoints https://github.com/smithy-lang/smithy-typescript/issues/1645
 
   '@smithy/middleware-retry@4.1.15':
     resolution: {integrity: sha512-iKYUJpiyTQ33U2KlOZeUb0GwtzWR3C0soYcKuCnTmJrvt6XwTPQZhMfsjJZNw7PpQ3TU4Ati1qLSrkSJxnnSMQ==}
@@ -3357,6 +3372,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  mode-watcher@1.1.0:
+    resolution: {integrity: sha512-mUT9RRGPDYenk59qJauN1rhsIMKBmWA3xMF+uRwE8MW/tjhaDSCCARqkSuDTq8vr4/2KcAxIGVjACxTjdk5C3g==}
+    peerDependencies:
+      svelte: ^5.27.0
+
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -3839,6 +3859,16 @@ packages:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
 
+  runed@0.23.4:
+    resolution: {integrity: sha512-9q8oUiBYeXIDLWNK5DfCWlkL0EW3oGbk845VdKlPeia28l751VpfesaB/+7pI6rnbx1I6rqoZ2fZxptOJLxILA==}
+    peerDependencies:
+      svelte: ^5.7.0
+
+  runed@0.25.0:
+    resolution: {integrity: sha512-7+ma4AG9FT2sWQEA0Egf6mb7PBT2vHyuHail1ie8ropfSjvZGtEAx8YTmUjv/APCsdRRxEVvArNjALk9zFSOrg==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   runed@0.28.0:
     resolution: {integrity: sha512-k2xx7RuO9hWcdd9f+8JoBeqWtYrm5CALfgpkg2YDB80ds/QE4w0qqu34A7fqiAwiBBSBQOid7TLxwxVC27ymWQ==}
     peerDependencies:
@@ -4097,6 +4127,17 @@ packages:
     engines: {node: '>=0.14'}
     peerDependencies:
       svelte: ^3.48.0 || ^4 || ^5
+
+  svelte-sonner@1.0.5:
+    resolution: {integrity: sha512-9dpGPFqKb/QWudYqGnEz93vuY+NgCEvyNvxoCLMVGw6sDN/3oVeKV1xiEirW2E1N3vJEyj5imSBNOGltQHA7mg==}
+    peerDependencies:
+      svelte: ^5.0.0
+
+  svelte-toolbelt@0.7.1:
+    resolution: {integrity: sha512-HcBOcR17Vx9bjaOceUvxkY3nGmbBmCBBbuWLLEWO6jtmWH8f/QoWmbyUfQZrpDINH39en1b8mptfPQT9VKQ1xQ==}
+    engines: {node: '>=18', pnpm: '>=8.7.0'}
+    peerDependencies:
+      svelte: ^5.0.0
 
   svelte-toolbelt@0.9.3:
     resolution: {integrity: sha512-HCSWxCtVmv+c6g1ACb8LTwHVbDqLKJvHpo6J8TaqwUme2hj9ATJCpjCPNISR1OCq2Q4U1KT41if9ON0isINQZw==}
@@ -5385,6 +5426,11 @@ snapshots:
   '@iconify-json/simple-icons@1.2.44':
     dependencies:
       '@iconify/types': 2.0.0
+
+  '@iconify/svelte@5.0.1(svelte@5.35.5)':
+    dependencies:
+      '@iconify/types': 2.0.0
+      svelte: 5.35.5
 
   '@iconify/types@2.0.0': {}
 
@@ -7985,6 +8031,12 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
+  mode-watcher@1.1.0(svelte@5.35.5):
+    dependencies:
+      runed: 0.25.0(svelte@5.35.5)
+      svelte: 5.35.5
+      svelte-toolbelt: 0.7.1(svelte@5.35.5)
+
   mri@1.2.0: {}
 
   mrmime@2.0.1: {}
@@ -8434,6 +8486,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  runed@0.23.4(svelte@5.35.5):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.35.5
+
+  runed@0.25.0(svelte@5.35.5):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.35.5
+
   runed@0.28.0(svelte@5.35.5):
     dependencies:
       esm-env: 1.2.2
@@ -8735,6 +8797,18 @@ snapshots:
 
   svelte-persisted-store@0.12.0(svelte@5.35.5):
     dependencies:
+      svelte: 5.35.5
+
+  svelte-sonner@1.0.5(svelte@5.35.5):
+    dependencies:
+      runed: 0.28.0(svelte@5.35.5)
+      svelte: 5.35.5
+
+  svelte-toolbelt@0.7.1(svelte@5.35.5):
+    dependencies:
+      clsx: 2.1.1
+      runed: 0.23.4(svelte@5.35.5)
+      style-to-object: 1.0.9
       svelte: 5.35.5
 
   svelte-toolbelt@0.9.3(svelte@5.35.5):

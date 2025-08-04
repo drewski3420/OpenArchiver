@@ -29,20 +29,25 @@ export class CryptoService {
         return Buffer.concat([salt, iv, tag, encrypted]).toString('hex');
     }
 
-    public static decrypt(encrypted: string): string {
-        const data = Buffer.from(encrypted, 'hex');
-        const salt = data.subarray(0, SALT_LENGTH);
-        const iv = data.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
-        const tag = data.subarray(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
-        const encryptedValue = data.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
+    public static decrypt(encrypted: string): string | null {
+        try {
+            const data = Buffer.from(encrypted, 'hex');
+            const salt = data.subarray(0, SALT_LENGTH);
+            const iv = data.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
+            const tag = data.subarray(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
+            const encryptedValue = data.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
 
-        const key = getKey(salt);
-        const decipher = createDecipheriv(ALGORITHM, key, iv);
-        decipher.setAuthTag(tag);
+            const key = getKey(salt);
+            const decipher = createDecipheriv(ALGORITHM, key, iv);
+            decipher.setAuthTag(tag);
 
-        const decrypted = Buffer.concat([decipher.update(encryptedValue), decipher.final()]);
+            const decrypted = Buffer.concat([decipher.update(encryptedValue), decipher.final()]);
 
-        return decrypted.toString('utf8');
+            return decrypted.toString('utf8');
+        } catch (error) {
+            console.error('Decryption failed:', error);
+            return null;
+        }
     }
 
     public static encryptObject<T extends object>(obj: T): string {
@@ -50,8 +55,16 @@ export class CryptoService {
         return this.encrypt(jsonString);
     }
 
-    public static decryptObject<T extends object>(encrypted: string): T {
+    public static decryptObject<T extends object>(encrypted: string): T | null {
         const decryptedString = this.decrypt(encrypted);
-        return JSON.parse(decryptedString) as T;
+        if (!decryptedString) {
+            return null;
+        }
+        try {
+            return JSON.parse(decryptedString) as T;
+        } catch (error) {
+            console.error('Failed to parse decrypted JSON:', error);
+            return null;
+        }
     }
 }

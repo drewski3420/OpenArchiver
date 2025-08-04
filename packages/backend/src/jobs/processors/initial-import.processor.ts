@@ -1,9 +1,10 @@
-import { Job } from 'bullmq';
+import { Job, FlowChildJob } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
 import { IInitialImportJob } from '@open-archiver/types';
 import { EmailProviderFactory } from '../../services/EmailProviderFactory';
 import { flowProducer } from '../queues';
 import { logger } from '../../config/logger';
+
 
 export default async (job: Job<IInitialImportJob>) => {
     const { ingestionSourceId } = job.data;
@@ -23,7 +24,7 @@ export default async (job: Job<IInitialImportJob>) => {
         const connector = EmailProviderFactory.createConnector(source);
 
         // if (connector instanceof GoogleWorkspaceConnector || connector instanceof MicrosoftConnector) {
-        const jobs = [];
+        const jobs: FlowChildJob[] = [];
         let userCount = 0;
         for await (const user of connector.listAllUsers()) {
             if (user.primaryEmail) {
@@ -40,7 +41,9 @@ export default async (job: Job<IInitialImportJob>) => {
                         },
                         removeOnFail: {
                             age: 60 * 30 // 30 minutes
-                        }
+                        },
+                        attempts: 1,
+                        // failParentOnFailure: true
                     }
                 });
                 userCount++;
