@@ -30,7 +30,9 @@ We are committed to build an engaging community around Open Archiver, and we are
 ## Live demo
 
 Check out the live demo here: https://demo.openarchiver.com
+
 Username: admin@local.com
+
 Password: openarchiver_demo
 
 ## Key Features
