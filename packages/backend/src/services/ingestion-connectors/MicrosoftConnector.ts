@@ -200,13 +200,17 @@ export class MicrosoftConnector implements IEmailConnector {
 
         while (requestUrl) {
             try {
-                const response = await this.graphClient.api(requestUrl).get();
+                const response = await this.graphClient.api(requestUrl)
+                    .select('id,conversationId,@removed')
+                    .get();
 
                 for (const message of response.value) {
                     if (message.id && !(message)['@removed']) {
                         const rawEmail = await this.getRawEmail(userEmail, message.id);
                         if (rawEmail) {
-                            yield await this.parseEmail(rawEmail, message.id, userEmail);
+                            const emailObject = await this.parseEmail(rawEmail, message.id, userEmail);
+                            emailObject.threadId = message.conversationId; // Add conversationId as threadId
+                            yield emailObject;
                         }
                     }
                 }

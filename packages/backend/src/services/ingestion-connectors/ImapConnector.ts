@@ -1,8 +1,9 @@
 import type { GenericImapCredentials, EmailObject, EmailAddress, SyncState, MailboxUser } from '@open-archiver/types';
 import type { IEmailConnector } from '../EmailProviderFactory';
 import { ImapFlow } from 'imapflow';
-import { simpleParser, ParsedMail, Attachment, AddressObject } from 'mailparser';
+import { simpleParser, ParsedMail, Attachment, AddressObject, Headers } from 'mailparser';
 import { logger } from '../../config/logger';
+import { getThreadId } from './utils';
 
 export class ImapConnector implements IEmailConnector {
     private client: ImapFlow;
@@ -192,8 +193,11 @@ export class ImapConnector implements IEmailConnector {
             return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
         };
 
+        const threadId = getThreadId(parsedEmail.headers);
+
         return {
             id: msg.uid.toString(),
+            threadId: threadId,
             from: mapAddresses(parsedEmail.from),
             to: mapAddresses(parsedEmail.to),
             cc: mapAddresses(parsedEmail.cc),
