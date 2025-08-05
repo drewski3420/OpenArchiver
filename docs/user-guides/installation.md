@@ -161,3 +161,45 @@ docker compose pull
 # Restart the services with the new images
 docker compose up -d
 ```
+
+## Deploying on Coolify
+
+If you are deploying Open Archiver on [Coolify](https://coolify.io/), it is recommended to let Coolify manage the Docker networks for you. This can help avoid potential routing conflicts and simplify your setup.
+
+To do this, you will need to make a small modification to your `docker-compose.yml` file.
+
+### Modify `docker-compose.yml` for Coolify
+
+1.  **Open your `docker-compose.yml` file** in a text editor.
+
+2.  **Remove all `networks` sections** from the file. This includes the network configuration for each service and the top-level network definition.
+
+    Specifically, you need to remove:
+
+    -   The `networks: - open-archiver-net` lines from the `open-archiver`, `postgres`, `valkey`, and `meilisearch` services.
+    -   The entire `networks:` block at the end of the file.
+
+    Here is an example of what to remove from a service:
+
+    ```diff
+    services:
+      open-archiver:
+        image: logiclabshq/open-archiver:latest
+        # ... other settings
+    -   networks:
+    -     - open-archiver-net
+    ```
+
+    And remove this entire block from the end of the file:
+
+    ```diff
+    - networks:
+    -   open-archiver-net:
+    -     driver: bridge
+    ```
+
+3.  **Save the modified `docker-compose.yml` file.**
+
+By removing these sections, you allow Coolify to automatically create and manage the necessary networks, ensuring that all services can communicate with each other and are correctly exposed through Coolify's reverse proxy.
+
+After making these changes, you can proceed with deploying your application on Coolify as you normally would.

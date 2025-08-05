@@ -1,5 +1,7 @@
 import { ingestionQueue } from '../queues';
 
+import { config } from '../../config';
+
 const scheduleContinuousSync = async () => {
     // This job will run every 15 minutes
     await ingestionQueue.add(
@@ -7,7 +9,7 @@ const scheduleContinuousSync = async () => {
         {},
         {
             repeat: {
-                pattern: '* * * * *', // Every 1 minute
+                pattern: config.app.syncFrequency
             },
         }
     );
