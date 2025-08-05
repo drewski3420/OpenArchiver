@@ -36,7 +36,7 @@ export class UserService {
      * @param userDetails The details of the user to create.
      * @returns The newly created user object.
      */
-    public async createUser(userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string; }): Promise<(typeof schema.users.$inferSelect)> {
+    public async createAdminUser(userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string; }): Promise<(typeof schema.users.$inferSelect)> {
         const { email, first_name, last_name, password } = userDetails;
 
         const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
@@ -51,28 +51,28 @@ export class UserService {
             password: hashedPassword,
         }).returning();
 
-        if (isFirstUser) {
-            let superAdminRole = await db.query.roles.findFirst({
-                where: eq(schema.roles.name, 'Super Admin')
-            });
+        // find super admin role
+        let superAdminRole = await db.query.roles.findFirst({
+            where: eq(schema.roles.name, 'Super Admin')
+        });
 
-            if (!superAdminRole) {
-                const suerAdminPolicies: PolicyStatement[] = [{
-                    Effect: 'Allow',
-                    Action: ['*'],
-                    Resource: ['*']
-                }];
-                superAdminRole = (await db.insert(schema.roles).values({
-                    name: 'Super Admin',
-                    policies: suerAdminPolicies
-                }).returning())[0];
-            }
-
-            await db.insert(schema.userRoles).values({
-                userId: newUser[0].id,
-                roleId: superAdminRole.id
-            });
+        if (!superAdminRole) {
+            const suerAdminPolicies: PolicyStatement[] = [{
+                Effect: 'Allow',
+                Action: ['*'],
+                Resource: ['*']
+            }];
+            superAdminRole = (await db.insert(schema.roles).values({
+                name: 'Super Admin',
+                policies: suerAdminPolicies
+            }).returning())[0];
         }
+
+        await db.insert(schema.userRoles).values({
+            userId: newUser[0].id,
+            roleId: superAdminRole.id
+        });
+
 
         return newUser[0];
     }

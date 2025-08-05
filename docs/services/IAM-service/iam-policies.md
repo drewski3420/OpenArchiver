@@ -18,7 +18,37 @@ A policy is a JSON object that consists of one or more statements. Each statemen
 -   **`Action`**: A list of operations that the policy grants or denies permission to perform. Actions are formatted as `service:operation`.
 -   **`Resource`**: A list of resources to which the actions apply. Resources are specified in a hierarchical format. Wildcards (`*`) can be used.
 
-## 2. Actions and Resources by Service
+## 2. Wildcard Support
+
+Our IAM system supports wildcards (`*`) in both `Action` and `Resource` fields to provide flexible permission management, as defined in the `PolicyValidator`.
+
+### Action Wildcards
+
+You can use wildcards to grant broad permissions for actions:
+
+-   **Global Wildcard (`*`)**: A standalone `*` in the `Action` field grants permission for all possible actions across all services.
+    ```json
+    "Action": ["*"]
+    ```
+-   **Service-Level Wildcard (`service:*`)**: A wildcard at the end of an action string grants permission for all actions within that specific service.
+    ```json
+    "Action": ["archive:*"]
+    ```
+
+### Resource Wildcards
+
+Wildcards can also be used to specify resources:
+
+-   **Global Wildcard (`*`)**: A standalone `*` in the `Resource` field applies the policy to all resources in the system.
+    ```json
+    "Resource": ["*"]
+    ```
+-   **Partial Wildcards**: Some services allow wildcards at specific points in the resource path to refer to all resources of a certain type. For example, to target all ingestion sources:
+    ```json
+    "Resource": ["ingestion-source/*"]
+    ```
+
+## 3. Actions and Resources by Service
 
 The following sections define the available actions and resources, categorized by their respective services.
 
@@ -36,12 +66,12 @@ The `archive` service pertains to all actions related to accessing and managing 
 
 **Resources:**
 
-| Resource                              | Description                                                    |
-| :------------------------------------ | :------------------------------------------------------------- |
-| `archive/all`                         | Represents the entire email archive.                           |
-| `archive/ingestion-source/{sourceId}` | Scopes the action to emails from a specific ingestion source.  |
-| `archive/email/{emailId}`             | Scopes the action to a single, specific email.                 |
-| `archive/custodian/{custodianId}`     | Scopes the action to emails belonging to a specific custodian. |
+| Resource                              | Description                                                                              |
+| :------------------------------------ | :--------------------------------------------------------------------------------------- |
+| `archive/all`                         | Represents the entire email archive.                                                     |
+| `archive/ingestion-source/{sourceId}` | Scopes the action to emails from a specific ingestion source.                            |
+| `archive/mailbox/{email}`             | Scopes the action to a single, specific mailbox, usually identified by an email address. |
+| `archive/custodian/{custodianId}`     | Scopes the action to emails belonging to a specific custodian.                           |
 
 ---
 

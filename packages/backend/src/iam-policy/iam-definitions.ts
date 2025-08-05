@@ -29,7 +29,7 @@ const ARCHIVE_ACTIONS = {
 const ARCHIVE_RESOURCES = {
     ALL: 'archive/all',
     INGESTION_SOURCE: 'archive/ingestion-source/*',
-    EMAIL: 'archive/email/*',
+    MAILBOX: 'archive/mailbox/*',
     CUSTODIAN: 'archive/custodian/*',
 } as const;
 
@@ -113,43 +113,8 @@ export const ValidActions: Set<string> = new Set([
  *   as is `archive/email/123-abc`.
  */
 export const ValidResourcePatterns = {
-    archive: /^archive\/(all|ingestion-source\/[^\/]+|email\/[^\/]+|custodian\/[^\/]+)$/,
+    archive: /^archive\/(all|ingestion-source\/[^\/]+|mailbox\/[^\/]+|custodian\/[^\/]+)$/,
     ingestion: /^ingestion-source\/(\*|[^\/]+)$/,
     system: /^system\/(settings|users|user\/[^\/]+)$/,
     dashboard: /^dashboard\/\*$/,
 };
-
-
-/**
- * --- How to Use These Definitions for Validation (Conceptual) ---
- *
- * A validator function would be created, likely in an `AuthorizationService`,
- * that accepts a `PolicyStatement` object.
- *
- * export function isPolicyStatementValid(statement: PolicyStatement): boolean {
- *   // 1. Validate Actions
- *   for (const action of statement.Action) {
- *     if (action.endsWith('*')) {
- *       // For wildcards, check if the service prefix is valid
- *       const service = action.split(':')[0];
- *       if (!Object.keys(ValidResourcePatterns).includes(service)) {
- *         return false; // Invalid service
- *       }
- *     } else if (!ValidActions.has(action)) {
- *       return false; // Action is not in the set of known actions
- *     }
- *   }
- *
- *   // 2. Validate Resources
- *   for (const resource of statement.Resource) {
- *     const service = resource.split('/')[0];
- *     const pattern = ValidResourcePatterns[service];
- *
- *     if (!pattern || !pattern.test(resource)) {
- *       return false; // Resource format is invalid for the specified service
- *     }
- *   }
- *
- *   return true;
- * }
- */

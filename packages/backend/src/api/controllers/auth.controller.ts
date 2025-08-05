@@ -13,7 +13,12 @@ export class AuthController {
         this.#authService = authService;
         this.#userService = userService;
     }
-
+    /**
+     * Only used for setting up the instance, should only be displayed once upon instance set up.
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     public setup = async (req: Request, res: Response): Promise<Response> => {
         const { email, password, first_name, last_name } = req.body;
 
@@ -29,9 +34,8 @@ export class AuthController {
                 return res.status(403).json({ message: 'Setup has already been completed.' });
             }
 
-            const newUser = await this.#userService.createUser({ email, password, first_name, last_name });
+            const newUser = await this.#userService.createAdminUser({ email, password, first_name, last_name });
             const result = await this.#authService.login(email, password);
-
             return res.status(201).json(result);
         } catch (error) {
             console.error('Setup error:', error);

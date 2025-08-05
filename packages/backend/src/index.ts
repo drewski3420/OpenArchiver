@@ -35,7 +35,7 @@ const {
 
 
 if (!PORT_BACKEND || !JWT_SECRET || !JWT_EXPIRES_IN) {
-    throw new Error('Missing required environment variables for the backend.');
+    throw new Error('Missing required environment variables for the backend: PORT_BACKEND, JWT_SECRET, JWT_EXPIRES_IN.');
 }
 
 // --- Dependency Injection Setup ---

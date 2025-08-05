@@ -32,6 +32,5 @@ export const createIamRouter = (iamController: IamController): Router => {
      * @access Private
      */
     router.delete('/roles/:id', requireAuth, iamController.deleteRole);
-
     return router;
 };
