@@ -5,8 +5,10 @@ import { IngestionController } from './api/controllers/ingestion.controller';
 import { ArchivedEmailController } from './api/controllers/archived-email.controller';
 import { StorageController } from './api/controllers/storage.controller';
 import { SearchController } from './api/controllers/search.controller';
+import { IamController } from './api/controllers/iam.controller';
 import { requireAuth } from './api/middleware/requireAuth';
 import { createAuthRouter } from './api/routes/auth.routes';
+import { createIamRouter } from './api/routes/iam.routes';
 import { createIngestionRouter } from './api/routes/ingestion.routes';
 import { createArchivedEmailRouter } from './api/routes/archived-email.routes';
 import { createStorageRouter } from './api/routes/storage.routes';
@@ -14,7 +16,8 @@ import { createSearchRouter } from './api/routes/search.routes';
 import { createDashboardRouter } from './api/routes/dashboard.routes';
 import testRouter from './api/routes/test.routes';
 import { AuthService } from './services/AuthService';
-import { AdminUserService } from './services/UserService';
+import { UserService } from './services/UserService';
+import { IamService } from './services/IamService';
 import { StorageService } from './services/StorageService';
 import { SearchService } from './services/SearchService';
 
@@ -37,15 +40,17 @@ if (!PORT_BACKEND || !JWT_SECRET || !JWT_EXPIRES_IN) {
 
 // --- Dependency Injection Setup ---
 
-const userService = new AdminUserService();
+const userService = new UserService();
 const authService = new AuthService(userService, JWT_SECRET, JWT_EXPIRES_IN);
-const authController = new AuthController(authService);
+const authController = new AuthController(authService, userService);
 const ingestionController = new IngestionController();
 const archivedEmailController = new ArchivedEmailController();
 const storageService = new StorageService();
 const storageController = new StorageController(storageService);
 const searchService = new SearchService();
 const searchController = new SearchController();
+const iamService = new IamService();
+const iamController = new IamController(iamService);
 
 // --- Express App Initialization ---
 const app = express();
@@ -60,7 +65,9 @@ const archivedEmailRouter = createArchivedEmailRouter(archivedEmailController, a
 const storageRouter = createStorageRouter(storageController, authService);
 const searchRouter = createSearchRouter(searchController, authService);
 const dashboardRouter = createDashboardRouter(authService);
+const iamRouter = createIamRouter(iamController);
 app.use('/v1/auth', authRouter);
+app.use('/v1/iam', iamRouter);
 app.use('/v1/ingestion-sources', ingestionRouter);
 app.use('/v1/archived-emails', archivedEmailRouter);
 app.use('/v1/storage', storageRouter);

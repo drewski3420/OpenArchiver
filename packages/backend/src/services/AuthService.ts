@@ -1,38 +1,23 @@
-import { compare, hash } from 'bcryptjs';
-import type { SignJWT, jwtVerify } from 'jose';
-import type { AuthTokenPayload, User, LoginResponse } from '@open-archiver/types';
+import { compare } from 'bcryptjs';
+import { SignJWT, jwtVerify } from 'jose';
+import type { AuthTokenPayload, LoginResponse } from '@open-archiver/types';
+import { UserService } from './UserService';
+import { db } from '../database';
+import * as schema from '../database/schema';
+import { eq } from 'drizzle-orm';
 
-// This interface defines the contract for a service that manages users.
-// The AuthService will depend on this abstraction, not a concrete implementation.
-export interface IUserService {
-    findByEmail(email: string): Promise<User | null>;
-}
-
-// This interface defines the contract for our AuthService.
-export interface IAuthService {
-    verifyPassword(password: string, hash: string): Promise<boolean>;
-    login(email: string, password: string): Promise<LoginResponse | null>;
-    verifyToken(token: string): Promise<AuthTokenPayload | null>;
-}
-
-export class AuthService implements IAuthService {
-    #userService: IUserService;
+export class AuthService {
+    #userService: UserService;
     #jwtSecret: Uint8Array;
     #jwtExpiresIn: string;
-    #jose: Promise<{ SignJWT: typeof SignJWT; jwtVerify: typeof jwtVerify; }>;
 
-    constructor(userService: IUserService, jwtSecret: string, jwtExpiresIn: string) {
+    constructor(userService: UserService, jwtSecret: string, jwtExpiresIn: string) {
         this.#userService = userService;
         this.#jwtSecret = new TextEncoder().encode(jwtSecret);
         this.#jwtExpiresIn = jwtExpiresIn;
-        this.#jose = import('jose');
     }
 
-    #hashPassword(password: string): Promise<string> {
-        return hash(password, 10);
-    }
-
-    public verifyPassword(password: string, hash: string): Promise<boolean> {
+    public async verifyPassword(password: string, hash: string): Promise<boolean> {
         return compare(password, hash);
     }
 
@@ -40,7 +25,6 @@ export class AuthService implements IAuthService {
         if (!payload.sub) {
             throw new Error('JWT payload must have a subject (sub) claim.');
         }
-        const { SignJWT } = await this.#jose;
         return new SignJWT(payload)
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
@@ -52,22 +36,31 @@ export class AuthService implements IAuthService {
     public async login(email: string, password: string): Promise<LoginResponse | null> {
         const user = await this.#userService.findByEmail(email);
 
-        if (!user) {
-            return null; // User not found
+        if (!user || !user.password) {
+            return null; // User not found or password not set
         }
 
-        const isPasswordValid = await this.verifyPassword(password, user.passwordHash);
+        const isPasswordValid = await this.verifyPassword(password, user.password);
 
         if (!isPasswordValid) {
             return null; // Invalid password
         }
 
-        const { passwordHash, ...userWithoutPassword } = user;
+        const userRoles = await db.query.userRoles.findMany({
+            where: eq(schema.userRoles.userId, user.id),
+            with: {
+                role: true
+            }
+        });
+
+        const roles = userRoles.map(ur => ur.role.name);
+
+        const { password: _, ...userWithoutPassword } = user;
 
         const accessToken = await this.#generateAccessToken({
             sub: user.id,
             email: user.email,
-            role: user.role,
+            roles: roles,
         });
 
         return { accessToken, user: userWithoutPassword };
@@ -75,7 +68,6 @@ export class AuthService implements IAuthService {
 
     public async verifyToken(token: string): Promise<AuthTokenPayload | null> {
         try {
-            const { jwtVerify } = await this.#jose;
             const { payload } = await jwtVerify<AuthTokenPayload>(token, this.#jwtSecret);
             return payload;
         } catch (error) {

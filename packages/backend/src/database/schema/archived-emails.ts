@@ -25,11 +25,7 @@ export const archivedEmails = pgTable(
         isOnLegalHold: boolean('is_on_legal_hold').notNull().default(false),
         archivedAt: timestamp('archived_at', { withTimezone: true }).notNull().defaultNow(),
     },
-    (table) => {
-        return {
-            threadIdIdx: index('thread_id_idx').on(table.threadId)
-        };
-    }
+    (table) => [index('thread_id_idx').on(table.threadId)]
 );
 
 export const archivedEmailsRelations = relations(archivedEmails, ({ one }) => ({

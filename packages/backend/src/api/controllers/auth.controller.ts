@@ -1,12 +1,43 @@
 import type { Request, Response } from 'express';
-import type { IAuthService } from '../../services/AuthService';
+import { AuthService } from '../../services/AuthService';
+import { UserService } from '../../services/UserService';
+import { db } from '../../database';
+import * as schema from '../../database/schema';
+import { sql } from 'drizzle-orm';
 
 export class AuthController {
-    #authService: IAuthService;
+    #authService: AuthService;
+    #userService: UserService;
 
-    constructor(authService: IAuthService) {
+    constructor(authService: AuthService, userService: UserService) {
         this.#authService = authService;
+        this.#userService = userService;
     }
+
+    public setup = async (req: Request, res: Response): Promise<Response> => {
+        const { email, password, first_name, last_name } = req.body;
+
+        if (!email || !password || !first_name || !last_name) {
+            return res.status(400).json({ message: 'Email, password, and name are required' });
+        }
+
+        try {
+            const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
+            const userCount = Number(userCountResult[0].count);
+
+            if (userCount > 0) {
+                return res.status(403).json({ message: 'Setup has already been completed.' });
+            }
+
+            const newUser = await this.#userService.createUser({ email, password, first_name, last_name });
+            const result = await this.#authService.login(email, password);
+
+            return res.status(201).json(result);
+        } catch (error) {
+            console.error('Setup error:', error);
+            return res.status(500).json({ message: 'An internal server error occurred' });
+        }
+    };
 
     public login = async (req: Request, res: Response): Promise<Response> => {
         const { email, password } = req.body;
@@ -25,6 +56,18 @@ export class AuthController {
             return res.status(200).json(result);
         } catch (error) {
             console.error('Login error:', error);
+            return res.status(500).json({ message: 'An internal server error occurred' });
+        }
+    };
+
+    public status = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
+            const userCount = Number(userCountResult[0].count);
+            const needsSetup = userCount === 0;
+            return res.status(200).json({ needsSetup });
+        } catch (error) {
+            console.error('Status check error:', error);
             return res.status(500).json({ message: 'An internal server error occurred' });
         }
     };

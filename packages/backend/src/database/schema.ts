@@ -4,3 +4,4 @@ export * from './schema/audit-logs';
 export * from './schema/compliance';
 export * from './schema/custodians';
 export * from './schema/ingestion-sources';
+export * from './schema/users';
