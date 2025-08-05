@@ -1,7 +1,7 @@
-import { count, desc, eq } from 'drizzle-orm';
+import { count, desc, eq, asc } from 'drizzle-orm';
 import { db } from '../database';
 import { archivedEmails, attachments, emailAttachments } from '../database/schema';
-import type { PaginatedArchivedEmails, ArchivedEmail, Recipient } from '@open-archiver/types';
+import type { PaginatedArchivedEmails, ArchivedEmail, Recipient, ThreadEmail } from '@open-archiver/types';
 import { StorageService } from './StorageService';
 import type { Readable } from 'stream';
 
@@ -10,6 +10,8 @@ interface DbRecipients {
     cc: { name: string; address: string; }[];
     bcc: { name: string; address: string; }[];
 }
+
+
 
 async function streamToBuffer(stream: Readable): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -75,6 +77,21 @@ export class ArchivedEmailService {
             return null;
         }
 
+        let threadEmails: ThreadEmail[] = [];
+
+        if (email.threadId) {
+            threadEmails = await db.query.archivedEmails.findMany({
+                where: eq(archivedEmails.threadId, email.threadId),
+                orderBy: [asc(archivedEmails.sentAt)],
+                columns: {
+                    id: true,
+                    subject: true,
+                    sentAt: true,
+                    senderEmail: true,
+                },
+            });
+        }
+
         const storage = new StorageService();
         const rawStream = await storage.get(email.storagePath);
         const raw = await streamToBuffer(rawStream as Readable);
@@ -82,7 +99,8 @@ export class ArchivedEmailService {
         const mappedEmail = {
             ...email,
             recipients: this.mapRecipients(email.recipients),
-            raw
+            raw,
+            thread: threadEmails
         };
 
         if (email.hasAttachments) {

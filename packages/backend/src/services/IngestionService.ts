@@ -297,6 +297,7 @@ export class IngestionService {
                 .values({
                     ingestionSourceId: source.id,
                     userEmail,
+                    threadId: email.threadId,
                     messageIdHeader: messageId,
                     sentAt: email.receivedAt,
                     subject: email.subject,

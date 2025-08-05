@@ -3,11 +3,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import EmailPreview from '$lib/components/custom/EmailPreview.svelte';
+	import EmailThread from '$lib/components/custom/EmailThread.svelte';
 	import { api } from '$lib/api.client';
 	import { browser } from '$app/environment';
 
 	let { data }: { data: PageData } = $props();
-	const { email } = data;
+	let email = $derived(data.email);
+
 	async function download(path: string, filename: string) {
 		if (!browser) return;
 
@@ -41,7 +43,7 @@
 				<Card.Header>
 					<Card.Title>{email.subject || 'No Subject'}</Card.Title>
 					<Card.Description>
-						From: {email.senderName || email.senderEmail} | Sent: {new Date(
+						From: {email.senderEmail || email.senderName} | Sent: {new Date(
 							email.sentAt
 						).toLocaleString()}
 					</Card.Description>
@@ -79,7 +81,7 @@
 				</Card.Content>
 			</Card.Root>
 		</div>
-		<div class="col-span-3 md:col-span-1">
+		<div class="col-span-3 space-y-6 md:col-span-1">
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>Actions</Card.Title>
@@ -90,6 +92,17 @@
 					>
 				</Card.Content>
 			</Card.Root>
+
+			{#if email.thread && email.thread.length > 1}
+				<Card.Root>
+					<Card.Header>
+						<Card.Title>Email thread</Card.Title>
+					</Card.Header>
+					<Card.Content>
+						<EmailThread thread={email.thread} currentEmailId={email.id} />
+					</Card.Content>
+				</Card.Root>
+			{/if}
 		</div>
 	</div>
 {:else}

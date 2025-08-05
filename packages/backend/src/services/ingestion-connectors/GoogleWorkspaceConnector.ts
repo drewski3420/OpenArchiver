@@ -9,7 +9,8 @@ import type {
 } from '@open-archiver/types';
 import type { IEmailConnector } from '../EmailProviderFactory';
 import { logger } from '../../config/logger';
-import { simpleParser, ParsedMail, Attachment, AddressObject } from 'mailparser';
+import { simpleParser, ParsedMail, Attachment, AddressObject, Headers } from 'mailparser';
+import { getThreadId } from './utils';
 
 /**
  * A connector for Google Workspace that uses a service account with domain-wide delegation
@@ -53,6 +54,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
         });
         return jwtClient;
     }
+
 
     /**
      * Tests the connection and authentication by attempting to list the first user
@@ -150,7 +152,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
 
         do {
             const historyResponse: Common.GaxiosResponseWithHTTP2<gmail_v1.Schema$ListHistoryResponse> = await gmail.users.history.list({
-                userId: 'me',
+                userId: userEmail,
                 startHistoryId: this.newHistoryId,
                 pageToken: pageToken,
                 historyTypes: ['messageAdded']
@@ -167,7 +169,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                         if (messageAdded.message?.id) {
                             try {
                                 const msgResponse = await gmail.users.messages.get({
-                                    userId: 'me',
+                                    userId: userEmail,
                                     id: messageAdded.message.id,
                                     format: 'RAW'
                                 });
@@ -186,8 +188,11 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                                         const addressArray = Array.isArray(addresses) ? addresses : [addresses];
                                         return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
                                     };
+                                    const threadId = getThreadId(parsedEmail.headers);
+                                    console.log('threadId', threadId);
                                     yield {
                                         id: msgResponse.data.id!,
+                                        threadId,
                                         userEmail: userEmail,
                                         eml: rawEmail,
                                         from: mapAddresses(parsedEmail.from),
@@ -226,7 +231,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
         let pageToken: string | undefined = undefined;
         do {
             const listResponse: Common.GaxiosResponseWithHTTP2<gmail_v1.Schema$ListMessagesResponse> = await gmail.users.messages.list({
-                userId: 'me',
+                userId: userEmail,
                 pageToken: pageToken
             });
 
@@ -239,7 +244,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                 if (message.id) {
                     try {
                         const msgResponse = await gmail.users.messages.get({
-                            userId: 'me',
+                            userId: userEmail,
                             id: message.id,
                             format: 'RAW'
                         });
@@ -258,8 +263,11 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                                 const addressArray = Array.isArray(addresses) ? addresses : [addresses];
                                 return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address || '' })));
                             };
+                            const threadId = getThreadId(parsedEmail.headers);
+                            console.log('threadId', threadId);
                             yield {
                                 id: msgResponse.data.id!,
+                                threadId,
                                 userEmail: userEmail,
                                 eml: rawEmail,
                                 from: mapAddresses(parsedEmail.from),
@@ -287,7 +295,7 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
         } while (pageToken);
 
         // After fetching all messages, get the latest history ID to use as the starting point for the next sync.
-        const profileResponse = await gmail.users.getProfile({ userId: 'me' });
+        const profileResponse = await gmail.users.getProfile({ userId: userEmail });
         if (profileResponse.data.historyId) {
             this.newHistoryId = profileResponse.data.historyId;
         }

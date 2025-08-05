@@ -23,6 +23,8 @@ export interface EmailAttachment {
 export interface EmailObject {
     /** A unique identifier for the email, typically assigned by the source provider. */
     id: string;
+    /** An optional identifier for the email thread, used to group related emails. */
+    threadId?: string;
     /** An array of `EmailAddress` objects representing the sender(s). */
     from: EmailAddress[];
     /** An array of `EmailAddress` objects representing the primary recipient(s). */

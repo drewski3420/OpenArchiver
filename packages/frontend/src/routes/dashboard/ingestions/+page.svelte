@@ -31,7 +31,7 @@
 			setAlert({
 				type: 'warning',
 				title: 'Demo mode',
-				message: 'Editing is now allowed in demo mode.',
+				message: 'Editing is not allowed in demo mode.',
 				duration: 5000,
 				show: true
 			});

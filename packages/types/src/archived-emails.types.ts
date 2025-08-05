@@ -17,6 +17,14 @@ export interface Attachment {
     storagePath: string;
 }
 
+
+export interface ThreadEmail {
+    id: string; //the archivedemail id
+    subject: string | null;
+    sentAt: Date;
+    senderEmail: string;
+}
+
 /**
  * Represents a single archived email.
  */
@@ -39,6 +47,7 @@ export interface ArchivedEmail {
     archivedAt: Date;
     attachments?: Attachment[];
     raw?: Buffer;
+    thread?: ThreadEmail[];
 }
 
 /**
