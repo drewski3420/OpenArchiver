@@ -34,7 +34,7 @@ export class AuthController {
                 return res.status(403).json({ message: 'Setup has already been completed.' });
             }
 
-            const newUser = await this.#userService.createAdminUser({ email, password, first_name, last_name });
+            const newUser = await this.#userService.createAdminUser({ email, password, first_name, last_name }, true);
             const result = await this.#authService.login(email, password);
             return res.status(201).json(result);
         } catch (error) {

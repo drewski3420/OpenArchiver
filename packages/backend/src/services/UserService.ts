@@ -31,17 +31,23 @@ export class UserService {
     }
 
     /**
-     * Creates a new user in the database.
-     * The first user created will be assigned the 'Super Admin' role.
+     * Creates an admin user in the database.
+     * The user created will be assigned the 'Super Admin' role.
+     * Caution ⚠️: This action can only be allowed in the initial setup
      * @param userDetails The details of the user to create.
+     * @param isSetup Is this an initial setup?
      * @returns The newly created user object.
      */
-    public async createAdminUser(userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string; }): Promise<(typeof schema.users.$inferSelect)> {
+    public async createAdminUser(userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string; }, isSetup: boolean): Promise<(typeof schema.users.$inferSelect)> {
+        if (!isSetup) {
+            throw Error('This operation is only allowed upon initial setup.');
+        }
         const { email, first_name, last_name, password } = userDetails;
-
         const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
         const isFirstUser = Number(userCountResult[0].count) === 0;
-
+        if (!isFirstUser) {
+            throw Error('This operation is only allowed upon initial setup.');
+        }
         const hashedPassword = password ? await hash(password, 10) : undefined;
 
         const newUser = await db.insert(schema.users).values({
