@@ -1,17 +1,14 @@
 import { Router } from 'express';
-import { SearchController } from '../controllers/search.controller';
+import { uploadFile } from '../controllers/upload.controller';
 import { requireAuth } from '../middleware/requireAuth';
 import { AuthService } from '../../services/AuthService';
 
-export const createSearchRouter = (
-    searchController: SearchController,
-    authService: AuthService
-): Router => {
+export const createUploadRouter = (authService: AuthService): Router => {
     const router = Router();
 
     router.use(requireAuth(authService));
 
-    router.get('/', searchController.search);
+    router.post('/', uploadFile);
 
     return router;
 };

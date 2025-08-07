@@ -19,7 +19,7 @@
 				{#each thread as item, i (item.id)}
 					<div class="mb-8">
 						<span
-							class="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 ring-8 ring-white"
+							class=" ring-sidebar absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 ring-8"
 						>
 							<svg
 								class="h-3 w-3 text-gray-600"

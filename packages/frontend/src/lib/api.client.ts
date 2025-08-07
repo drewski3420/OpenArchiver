@@ -14,9 +14,11 @@ export const api = async (
     options: RequestInit = {}
 ): Promise<Response> => {
     const { accessToken } = get(authStore);
-    const defaultHeaders: HeadersInit = {
-        'Content-Type': 'application/json'
-    };
+    const defaultHeaders: HeadersInit = {};
+
+    if (!(options.body instanceof FormData)) {
+        defaultHeaders['Content-Type'] = 'application/json';
+    }
 
     if (accessToken) {
         defaultHeaders['Authorization'] = `Bearer ${accessToken}`;

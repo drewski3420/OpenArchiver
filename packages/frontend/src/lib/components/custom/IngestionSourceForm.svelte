@@ -8,7 +8,9 @@
 	import * as Select from '$lib/components/ui/select';
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
-
+	import { setAlert } from '$lib/components/custom/alert/alert-state.svelte';
+	import { api } from '$lib/api.client';
+	import { Loader2 } from 'lucide-svelte';
 	let {
 		source = null,
 		onSubmit
@@ -20,7 +22,8 @@
 	const providerOptions = [
 		{ value: 'generic_imap', label: 'Generic IMAP' },
 		{ value: 'google_workspace', label: 'Google Workspace' },
-		{ value: 'microsoft_365', label: 'Microsoft 365' }
+		{ value: 'microsoft_365', label: 'Microsoft 365' },
+		{ value: 'pst_import', label: 'PST Import' }
 	];
 
 	let formData: CreateIngestionSourceDto = $state({
@@ -43,6 +46,8 @@
 
 	let isSubmitting = $state(false);
 
+	let fileUploading = $state(false);
+
 	const handleSubmit = async (event: Event) => {
 		event.preventDefault();
 		isSubmitting = true;
@@ -50,6 +55,45 @@
 			await onSubmit(formData);
 		} finally {
 			isSubmitting = false;
+		}
+	};
+
+	const handleFileChange = async (event: Event) => {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0];
+		fileUploading = true;
+		if (!file) {
+			fileUploading = false;
+			return;
+		}
+
+		const uploadFormData = new FormData();
+		uploadFormData.append('file', file);
+
+		try {
+			const response = await api('/upload', {
+				method: 'POST',
+				body: uploadFormData
+			});
+
+			if (!response.ok) {
+				throw new Error('File upload failed');
+			}
+
+			const result = await response.json();
+			formData.providerConfig.uploadedFilePath = result.filePath;
+			formData.providerConfig.uploadedFileName = file.name;
+			console.log(formData.providerConfig.uploadedFilePath);
+			fileUploading = false;
+		} catch (error) {
+			fileUploading = false;
+			setAlert({
+				type: 'error',
+				title: 'Upload Failed',
+				message: 'PST file upload failed. Please try again.',
+				duration: 5000,
+				show: true
+			});
 		}
 	};
 </script>
@@ -136,6 +180,16 @@
 			<Label for="secure" class="text-left">Use TLS</Label>
 			<Checkbox id="secure" bind:checked={formData.providerConfig.secure} />
 		</div>
+	{:else if formData.provider === 'pst_import'}
+		<div class="grid grid-cols-4 items-center gap-4">
+			<Label for="pst-file" class="text-left">PST File</Label>
+			<div class="col-span-3 flex flex-row items-center space-x-2">
+				<Input id="pst-file" type="file" class="" accept=".pst" onchange={handleFileChange} />
+				{#if fileUploading}
+					<span class=" text-primary animate-spin"><Loader2 /></span>
+				{/if}
+			</div>
+		</div>
 	{/if}
 	{#if formData.provider === 'google_workspace' || formData.provider === 'microsoft_365'}
 		<Alert.Root>
@@ -150,7 +204,7 @@
 		</Alert.Root>
 	{/if}
 	<Dialog.Footer>
-		<Button type="submit" disabled={isSubmitting}>
+		<Button type="submit" disabled={isSubmitting || fileUploading}>
 			{#if isSubmitting}
 				Submitting...
 			{:else}

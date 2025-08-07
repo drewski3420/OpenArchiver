@@ -3,7 +3,7 @@ import type { IEmailConnector } from '../EmailProviderFactory';
 import { ImapFlow } from 'imapflow';
 import { simpleParser, ParsedMail, Attachment, AddressObject, Headers } from 'mailparser';
 import { logger } from '../../config/logger';
-import { getThreadId } from './utils';
+import { getThreadId } from './helpers/utils';
 
 export class ImapConnector implements IEmailConnector {
     private client: ImapFlow;

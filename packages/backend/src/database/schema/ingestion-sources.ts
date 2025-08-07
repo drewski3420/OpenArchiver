@@ -3,7 +3,8 @@ import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-co
 export const ingestionProviderEnum = pgEnum('ingestion_provider', [
     'google_workspace',
     'microsoft_365',
-    'generic_imap'
+    'generic_imap',
+    'pst_import'
 ]);
 
 export const ingestionStatusEnum = pgEnum('ingestion_status', [
@@ -13,7 +14,8 @@ export const ingestionStatusEnum = pgEnum('ingestion_status', [
     'pending_auth',
     'syncing',
     'importing',
-    'auth_success'
+    'auth_success',
+    'imported'
 ]);
 
 export const ingestionSources = pgTable('ingestion_sources', {

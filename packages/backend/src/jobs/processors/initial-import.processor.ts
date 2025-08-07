@@ -67,9 +67,10 @@ export default async (job: Job<IInitialImportJob>) => {
                 }
             });
         } else {
+            const finalStatus = source.provider === 'pst_import' ? 'imported' : 'active';
             // If there are no users, we can consider the import finished and set to active
             await IngestionService.update(ingestionSourceId, {
-                status: 'active',
+                status: finalStatus,
                 lastSyncFinishedAt: new Date(),
                 lastSyncStatusMessage: 'Initial import complete. No users found.'
             });

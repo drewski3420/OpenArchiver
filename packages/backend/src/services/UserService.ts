@@ -31,9 +31,10 @@ export class UserService {
     }
 
     /**
-     * Creates an admin user in the database.
-     * The user created will be assigned the 'Super Admin' role.
+     * Creates an admin user in the database. The user created will be assigned the 'Super Admin' role.
+     * 
      * Caution ⚠️: This action can only be allowed in the initial setup
+     * 
      * @param userDetails The details of the user to create.
      * @param isSetup Is this an initial setup?
      * @returns The newly created user object.

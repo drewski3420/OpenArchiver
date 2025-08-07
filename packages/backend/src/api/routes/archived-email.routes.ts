@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { ArchivedEmailController } from '../controllers/archived-email.controller';
 import { requireAuth } from '../middleware/requireAuth';
-import { IAuthService } from '../../services/AuthService';
+import { AuthService } from '../../services/AuthService';
 
 export const createArchivedEmailRouter = (
     archivedEmailController: ArchivedEmailController,
-    authService: IAuthService
+    authService: AuthService
 ): Router => {
     const router = Router();
 

@@ -3,9 +3,10 @@
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { MoreHorizontal } from 'lucide-svelte';
+	import { MoreHorizontal, Trash, RefreshCw } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Switch } from '$lib/components/ui/switch';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import IngestionSourceForm from '$lib/components/custom/IngestionSourceForm.svelte';
 	import { api } from '$lib/api.client';
 	import type { IngestionSource, CreateIngestionSourceDto } from '@open-archiver/types';
@@ -20,6 +21,8 @@
 	let selectedSource = $state<IngestionSource | null>(null);
 	let sourceToDelete = $state<IngestionSource | null>(null);
 	let isDeleting = $state(false);
+	let selectedIds = $state<string[]>([]);
+	let isBulkDeleteDialogOpen = $state(false);
 
 	const openCreateDialog = () => {
 		selectedSource = null;
@@ -125,6 +128,64 @@
 		}
 	};
 
+	const handleBulkDelete = async () => {
+		isDeleting = true;
+		try {
+			for (const id of selectedIds) {
+				const res = await api(`/ingestion-sources/${id}`, { method: 'DELETE' });
+				if (!res.ok) {
+					const errorBody = await res.json();
+					setAlert({
+						type: 'error',
+						title: `Failed to delete ingestion ${id}`,
+						message: errorBody.message || JSON.stringify(errorBody),
+						duration: 5000,
+						show: true
+					});
+				}
+			}
+			ingestionSources = ingestionSources.filter((s) => !selectedIds.includes(s.id));
+			selectedIds = [];
+			isBulkDeleteDialogOpen = false;
+		} finally {
+			isDeleting = false;
+		}
+	};
+
+	const handleBulkForceSync = async () => {
+		try {
+			for (const id of selectedIds) {
+				const res = await api(`/ingestion-sources/${id}/sync`, { method: 'POST' });
+				if (!res.ok) {
+					const errorBody = await res.json();
+					setAlert({
+						type: 'error',
+						title: `Failed to trigger force sync for ingestion ${id}`,
+						message: errorBody.message || JSON.stringify(errorBody),
+						duration: 5000,
+						show: true
+					});
+				}
+			}
+			const updatedSources = ingestionSources.map((s) => {
+				if (selectedIds.includes(s.id)) {
+					return { ...s, status: 'syncing' as const };
+				}
+				return s;
+			});
+			ingestionSources = updatedSources;
+			selectedIds = [];
+		} catch (e) {
+			setAlert({
+				type: 'error',
+				title: 'Failed to trigger force sync',
+				message: e instanceof Error ? e.message : JSON.stringify(e),
+				duration: 5000,
+				show: true
+			});
+		}
+	};
+
 	const handleFormSubmit = async (formData: CreateIngestionSourceDto) => {
 		try {
 			if (selectedSource) {
@@ -174,6 +235,8 @@
 		switch (status) {
 			case 'active':
 				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+			case 'imported':
+				return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
 			case 'paused':
 				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
 			case 'error':
@@ -198,7 +261,29 @@
 
 <div class="">
 	<div class="mb-4 flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Ingestion Sources</h1>
+		<div class="flex items-center gap-4">
+			<h1 class="text-2xl font-bold">Ingestion Sources</h1>
+			{#if selectedIds.length > 0}
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						<Button variant="outline">
+							Bulk Actions ({selectedIds.length})
+							<MoreHorizontal class="ml-2 h-4 w-4" />
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content>
+						<DropdownMenu.Item onclick={handleBulkForceSync}>
+							<RefreshCw class="mr-2 h-4 w-4" />
+							Force Sync
+						</DropdownMenu.Item>
+						<DropdownMenu.Item class="text-red-600" onclick={() => (isBulkDeleteDialogOpen = true)}>
+							<Trash class="mr-2 h-4 w-4" />
+							Delete
+						</DropdownMenu.Item>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			{/if}
+		</div>
 		<Button onclick={openCreateDialog} disabled={data.isDemo}>Create New</Button>
 	</div>
 
@@ -206,6 +291,20 @@
 		<Table.Root>
 			<Table.Header>
 				<Table.Row>
+					<Table.Head class="w-12">
+						<Checkbox
+							onCheckedChange={(checked) => {
+								if (checked) {
+									selectedIds = ingestionSources.map((s) => s.id);
+								} else {
+									selectedIds = [];
+								}
+							}}
+							checked={ingestionSources.length > 0 && selectedIds.length === ingestionSources.length
+								? true
+								: ((selectedIds.length > 0 ? 'indeterminate' : false) as any)}
+						/>
+					</Table.Head>
 					<Table.Head>Name</Table.Head>
 					<Table.Head>Provider</Table.Head>
 					<Table.Head>Status</Table.Head>
@@ -218,6 +317,18 @@
 				{#if ingestionSources.length > 0}
 					{#each ingestionSources as source (source.id)}
 						<Table.Row>
+							<Table.Cell>
+								<Checkbox
+									checked={selectedIds.includes(source.id)}
+									onCheckedChange={() => {
+										if (selectedIds.includes(source.id)) {
+											selectedIds = selectedIds.filter((id) => id !== source.id);
+										} else {
+											selectedIds = [...selectedIds, source.id];
+										}
+									}}
+								/>
+							</Table.Cell>
 							<Table.Cell>
 								<a href="/dashboard/archived-emails?ingestionSourceId={source.id}">{source.name}</a>
 							</Table.Cell>
@@ -316,6 +427,29 @@
 		</Dialog.Header>
 		<Dialog.Footer class="sm:justify-start">
 			<Button type="button" variant="destructive" onclick={confirmDelete} disabled={isDeleting}
+				>{#if isDeleting}Deleting...{:else}Confirm{/if}</Button
+			>
+			<Dialog.Close>
+				<Button type="button" variant="secondary">Cancel</Button>
+			</Dialog.Close>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={isBulkDeleteDialogOpen}>
+	<Dialog.Content class="sm:max-w-lg">
+		<Dialog.Header>
+			<Dialog.Title
+				>Are you sure you want to delete {selectedIds.length} selected ingestions?</Dialog.Title
+			>
+			<Dialog.Description>
+				This will delete all archived emails, attachments, indexing, and files associated with these
+				ingestions. If you only want to stop syncing new emails, you can pause the ingestions
+				instead.
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer class="sm:justify-start">
+			<Button type="button" variant="destructive" onclick={handleBulkDelete} disabled={isDeleting}
 				>{#if isDeleting}Deleting...{:else}Confirm{/if}</Button
 			>
 			<Dialog.Close>

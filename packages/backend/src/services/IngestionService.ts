@@ -37,7 +37,7 @@ export class IngestionService {
 
     public static async create(dto: CreateIngestionSourceDto): Promise<IngestionSource> {
         const { providerConfig, ...rest } = dto;
-
+        console.log(providerConfig);
         const encryptedCredentials = CryptoService.encryptObject(providerConfig);
 
         const valuesToInsert = {

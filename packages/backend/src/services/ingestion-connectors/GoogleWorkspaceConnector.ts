@@ -10,7 +10,7 @@ import type {
 import type { IEmailConnector } from '../EmailProviderFactory';
 import { logger } from '../../config/logger';
 import { simpleParser, ParsedMail, Attachment, AddressObject, Headers } from 'mailparser';
-import { getThreadId } from './utils';
+import { getThreadId } from './helpers/utils';
 
 /**
  * A connector for Google Workspace that uses a service account with domain-wide delegation

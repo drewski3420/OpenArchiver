@@ -4,6 +4,8 @@ import { UserService } from '../../services/UserService';
 import { db } from '../../database';
 import * as schema from '../../database/schema';
 import { sql } from 'drizzle-orm';
+import 'dotenv/config';
+
 
 export class AuthController {
     #authService: AuthService;
@@ -66,9 +68,22 @@ export class AuthController {
 
     public status = async (req: Request, res: Response): Promise<Response> => {
         try {
+
+
+
             const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
             const userCount = Number(userCountResult[0].count);
             const needsSetup = userCount === 0;
+            // in case user uses older version with admin user variables, we will create the admin user using those variables.
+            if (needsSetup && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+                await this.#userService.createAdminUser({
+                    email: process.env.ADMIN_EMAIL,
+                    password: process.env.ADMIN_PASSWORD,
+                    first_name: "Admin",
+                    last_name: "User"
+                }, true);
+                return res.status(200).json({ needsSetup: false });
+            }
             return res.status(200).json({ needsSetup });
         } catch (error) {
             console.error('Status check error:', error);

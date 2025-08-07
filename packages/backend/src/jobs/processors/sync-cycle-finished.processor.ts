@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
 import { logger } from '../../config/logger';
-import { SyncState, ProcessMailboxError } from '@open-archiver/types';
+import { SyncState, ProcessMailboxError, IngestionStatus } from '@open-archiver/types';
 import { db } from '../../database';
 import { ingestionSources } from '../../database/schema';
 import { eq } from 'drizzle-orm';
@@ -41,7 +41,11 @@ export default async (job: Job<ISyncCycleFinishedJob, any, string>) => {
 
         const finalSyncState = deepmerge(...successfulJobs.filter(s => s && Object.keys(s).length > 0));
 
-        let status: 'active' | 'error' = 'active';
+        const source = await IngestionService.findById(ingestionSourceId);
+        let status: IngestionStatus = 'active';
+        if (source.provider === 'pst_import') {
+            status = 'imported';
+        }
         let message: string;
 
         if (failedJobs.length > 0) {

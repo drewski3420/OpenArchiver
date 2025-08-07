@@ -14,6 +14,7 @@ import { createArchivedEmailRouter } from './api/routes/archived-email.routes';
 import { createStorageRouter } from './api/routes/storage.routes';
 import { createSearchRouter } from './api/routes/search.routes';
 import { createDashboardRouter } from './api/routes/dashboard.routes';
+import { createUploadRouter } from './api/routes/upload.routes';
 import testRouter from './api/routes/test.routes';
 import { AuthService } from './services/AuthService';
 import { UserService } from './services/UserService';
@@ -55,9 +56,6 @@ const iamController = new IamController(iamService);
 // --- Express App Initialization ---
 const app = express();
 
-// Middleware
-app.use(express.json()); // For parsing application/json
-
 // --- Routes ---
 const authRouter = createAuthRouter(authController);
 const ingestionRouter = createIngestionRouter(ingestionController, authService);
@@ -66,6 +64,14 @@ const storageRouter = createStorageRouter(storageController, authService);
 const searchRouter = createSearchRouter(searchController, authService);
 const dashboardRouter = createDashboardRouter(authService);
 const iamRouter = createIamRouter(iamController);
+const uploadRouter = createUploadRouter(authService);
+// upload route is added before middleware because it doesn't use the json middleware.
+app.use('/v1/upload', uploadRouter);
+
+// Middleware for all other routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/v1/auth', authRouter);
 app.use('/v1/iam', iamRouter);
 app.use('/v1/ingestion-sources', ingestionRouter);
