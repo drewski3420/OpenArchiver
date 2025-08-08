@@ -48,12 +48,19 @@ export default async (job: Job<ISyncCycleFinishedJob, any, string>) => {
         }
         let message: string;
 
+        // Check for a specific rate-limit message from the successful jobs
+        const rateLimitMessage = successfulJobs.find(j => j.statusMessage)?.statusMessage;
+
         if (failedJobs.length > 0) {
             status = 'error';
             const errorMessages = failedJobs.map(j => j.message).join('\n');
             message = `Sync cycle completed with ${failedJobs.length} error(s):\n${errorMessages}`;
             logger.error({ ingestionSourceId, errors: errorMessages }, 'Sync cycle finished with errors.');
-        } else {
+        } else if (rateLimitMessage) {
+            message = rateLimitMessage;
+            logger.warn({ ingestionSourceId, message }, 'Sync cycle paused due to rate limiting.');
+        }
+        else {
             message = 'Continuous sync cycle finished successfully.';
             if (isInitialImport) {
                 message = `Initial import finished for ${userCount} mailboxes.`;

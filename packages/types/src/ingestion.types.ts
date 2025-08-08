@@ -15,6 +15,7 @@ export type SyncState = {
         };
     };
     lastSyncTimestamp?: string;
+    statusMessage?: string;
 };
 
 export type IngestionProvider = 'google_workspace' | 'microsoft_365' | 'generic_imap' | 'pst_import';
