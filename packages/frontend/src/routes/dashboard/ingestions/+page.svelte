@@ -387,7 +387,7 @@
 					{/each}
 				{:else}
 					<Table.Row>
-						<Table.Cell colspan={5} class="text-center">No ingestion sources found.</Table.Cell>
+						<Table.Cell class="h-8 text-center"></Table.Cell>
 					</Table.Row>
 				{/if}
 			</Table.Body>

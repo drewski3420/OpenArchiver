@@ -114,6 +114,11 @@ export class PSTConnector implements IEmailConnector {
             if (!this.credentials.uploadedFilePath.includes('.pst')) {
                 throw Error("Provided file is not in the PST format.");
             }
+            const fileExist = await this.storage.exists(this.credentials.uploadedFilePath);
+            if (!fileExist) {
+                throw Error("PST file upload not finished yet, please wait.");
+            }
+
             return true;
         } catch (error) {
             logger.error({ error, credentials: this.credentials }, 'PST file validation failed.');
@@ -131,7 +136,7 @@ export class PSTConnector implements IEmailConnector {
         try {
             pstFile = await this.loadPstFile();
             const root = pstFile.getRootFolder();
-            const displayName = root.displayName || pstFile.pstFilename;
+            const displayName: string = root.displayName || pstFile.pstFilename || String(new Date().getTime());
             logger.info(`Found potential mailbox: ${displayName}`);
             const constructedPrimaryEmail = `${displayName.replace(/ /g, '.').toLowerCase()}@pst.local`;
             yield {
@@ -141,7 +146,7 @@ export class PSTConnector implements IEmailConnector {
                 displayName: displayName,
             };
         } catch (error) {
-            logger.error({ error }, 'Failed to list users from PST file using top-level folder strategy.');
+            logger.error({ error }, 'Failed to list users from PST file.');
             pstFile?.close();
             throw error;
         } finally {
@@ -156,7 +161,7 @@ export class PSTConnector implements IEmailConnector {
             const root = pstFile.getRootFolder();
             yield* this.processFolder(root);
         } catch (error) {
-            logger.error({ error }, 'Failed to list users from PST file using top-level folder strategy.');
+            logger.error({ error }, 'Failed to fetch email.');
             pstFile?.close();
             throw error;
         }
@@ -271,7 +276,6 @@ export class PSTConnector implements IEmailConnector {
         }
         headers += 'MIME-Version: 1.0\n';
 
-        console.log("headers", headers);
         //add new headers
         if (!/Content-Type:/i.test(headers)) {
             if (msg.hasAttachments) {

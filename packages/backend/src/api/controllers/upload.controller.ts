@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { StorageService } from '../../services/StorageService';
 import { randomUUID } from 'crypto';
 import busboy from 'busboy';
+import { config } from '../../config/index';
+
 
 export const uploadFile = async (req: Request, res: Response) => {
     const storage = new StorageService();
@@ -12,7 +14,7 @@ export const uploadFile = async (req: Request, res: Response) => {
     bb.on('file', (fieldname, file, filename) => {
         originalFilename = filename.filename;
         const uuid = randomUUID();
-        filePath = `temp/${uuid}-${originalFilename}`;
+        filePath = `${config.storage.openArchiverFolderName}/tmp/${uuid}-${originalFilename}`;
         storage.put(filePath, file);
     });
 

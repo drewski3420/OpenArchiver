@@ -19,6 +19,7 @@ import { logger } from '../config/logger';
 import { IndexingService } from './IndexingService';
 import { SearchService } from './SearchService';
 import { DatabaseService } from './DatabaseService';
+import { config } from '../config/index';
 
 
 export class IngestionService {
@@ -136,9 +137,12 @@ export class IngestionService {
 
         // Delete all emails and attachments from storage
         const storage = new StorageService();
-        const emailPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/`;
+        const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/`;
         await storage.delete(emailPath);
 
+        if (source.credentials.type === 'pst_import' && source.credentials.uploadedFilePath && await storage.exists(source.credentials.uploadedFilePath)) {
+            await storage.delete(source.credentials.uploadedFilePath);
+        }
 
         // Delete all emails from the database
         // NOTE: This is done by database CASADE, change when CASADE relation no longer exists.
@@ -289,7 +293,7 @@ export class IngestionService {
             console.log('processing email, ', email.id, email.subject);
             const emlBuffer = email.eml ?? Buffer.from(email.body, 'utf-8');
             const emailHash = createHash('sha256').update(emlBuffer).digest('hex');
-            const emailPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${email.id}.eml`;
+            const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${email.id}.eml`;
             await storage.put(emailPath, emlBuffer);
 
             const [archivedEmail] = await db
@@ -319,7 +323,7 @@ export class IngestionService {
                 for (const attachment of email.attachments) {
                     const attachmentBuffer = attachment.content;
                     const attachmentHash = createHash('sha256').update(attachmentBuffer).digest('hex');
-                    const attachmentPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/attachments/${attachment.filename}`;
+                    const attachmentPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/attachments/${attachment.filename}`;
                     await storage.put(attachmentPath, attachmentBuffer);
 
                     const [newAttachment] = await db

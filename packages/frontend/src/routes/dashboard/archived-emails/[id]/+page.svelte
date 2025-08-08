@@ -52,7 +52,7 @@
 					<div class="space-y-4">
 						<div>
 							<h3 class="font-semibold">Recipients</h3>
-							<p>To: {email.recipients.map((r) => r.email).join(', ')}</p>
+							<p>To: {email.recipients.map((r) => r.email || r.name).join(', ')}</p>
 						</div>
 						<div>
 							<h3 class="font-semibold">Email Preview</h3>
