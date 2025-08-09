@@ -159,7 +159,7 @@ export class PSTConnector implements IEmailConnector {
         try {
             pstFile = await this.loadPstFile();
             const root = pstFile.getRootFolder();
-            yield* this.processFolder(root);
+            yield* this.processFolder(root, '');
         } catch (error) {
             logger.error({ error }, 'Failed to fetch email.');
             pstFile?.close();
@@ -171,17 +171,19 @@ export class PSTConnector implements IEmailConnector {
         }
     }
 
-    private async *processFolder(folder: PSTFolder): AsyncGenerator<EmailObject | null> {
+    private async *processFolder(folder: PSTFolder, currentPath: string): AsyncGenerator<EmailObject | null> {
         const folderName = folder.displayName.toLowerCase();
         if (DELETED_FOLDERS.has(folderName) || JUNK_FOLDERS.has(folderName)) {
             logger.info(`Skipping folder: ${folder.displayName}`);
             return;
         }
 
+        const newPath = currentPath ? `${currentPath}/${folder.displayName}` : folder.displayName;
+
         if (folder.contentCount > 0) {
             let email: PSTMessage | null = folder.getNextChild();
             while (email != null) {
-                yield await this.parseMessage(email);
+                yield await this.parseMessage(email, newPath);
                 try {
                     email = folder.getNextChild();
                 } catch (error) {
@@ -193,12 +195,12 @@ export class PSTConnector implements IEmailConnector {
 
         if (folder.hasSubfolders) {
             for (const subFolder of folder.getSubFolders()) {
-                yield* this.processFolder(subFolder);
+                yield* this.processFolder(subFolder, newPath);
             }
         }
     }
 
-    private async parseMessage(msg: PSTMessage): Promise<EmailObject> {
+    private async parseMessage(msg: PSTMessage, path: string): Promise<EmailObject> {
         const emlContent = await this.constructEml(msg);
         const emlBuffer = Buffer.from(emlContent, 'utf-8');
         const parsedEmail: ParsedMail = await simpleParser(emlBuffer);
@@ -236,7 +238,8 @@ export class PSTConnector implements IEmailConnector {
             headers: parsedEmail.headers,
             attachments,
             receivedAt: parsedEmail.date || new Date(),
-            eml: emlBuffer
+            eml: emlBuffer,
+            path
         };
     }
 

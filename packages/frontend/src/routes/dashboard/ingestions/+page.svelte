@@ -330,7 +330,9 @@
 								/>
 							</Table.Cell>
 							<Table.Cell>
-								<a href="/dashboard/archived-emails?ingestionSourceId={source.id}">{source.name}</a>
+								<a class="link" href="/dashboard/archived-emails?ingestionSourceId={source.id}"
+									>{source.name}</a
+								>
 							</Table.Cell>
 							<Table.Cell class="capitalize">{source.provider.split('_').join(' ')}</Table.Cell>
 							<Table.Cell class="min-w-24">

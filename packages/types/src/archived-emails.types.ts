@@ -48,6 +48,8 @@ export interface ArchivedEmail {
     attachments?: Attachment[];
     raw?: Buffer;
     thread?: ThreadEmail[];
+    path: string | null;
+    tags: string[] | null;
 }
 
 /**

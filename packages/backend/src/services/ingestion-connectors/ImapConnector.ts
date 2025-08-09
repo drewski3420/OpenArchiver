@@ -196,7 +196,7 @@ export class ImapConnector implements IEmailConnector {
                             }
 
                             if (msg.envelope && msg.source) {
-                                yield await this.parseMessage(msg);
+                                yield await this.parseMessage(msg, mailboxPath);
                             }
                         }
 
@@ -222,7 +222,7 @@ export class ImapConnector implements IEmailConnector {
         }
     }
 
-    private async parseMessage(msg: any): Promise<EmailObject> {
+    private async parseMessage(msg: any, mailboxPath: string): Promise<EmailObject> {
         const parsedEmail: ParsedMail = await simpleParser(msg.source);
         const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
             filename: attachment.filename || 'untitled',
@@ -252,7 +252,8 @@ export class ImapConnector implements IEmailConnector {
             headers: parsedEmail.headers,
             attachments,
             receivedAt: parsedEmail.date || new Date(),
-            eml: msg.source
+            eml: msg.source,
+            path: mailboxPath
         };
     }
 

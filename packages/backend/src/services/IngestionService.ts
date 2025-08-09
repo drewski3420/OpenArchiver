@@ -293,7 +293,7 @@ export class IngestionService {
             console.log('processing email, ', email.id, email.subject);
             const emlBuffer = email.eml ?? Buffer.from(email.body, 'utf-8');
             const emailHash = createHash('sha256').update(emlBuffer).digest('hex');
-            const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${email.id}.eml`;
+            const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${email.path ? `${email.path}/` : ''}${email.id}.eml`;
             await storage.put(emailPath, emlBuffer);
 
             const [archivedEmail] = await db
@@ -315,7 +315,9 @@ export class IngestionService {
                     storagePath: emailPath,
                     storageHashSha256: emailHash,
                     sizeBytes: emlBuffer.length,
-                    hasAttachments: email.attachments.length > 0
+                    hasAttachments: email.attachments.length > 0,
+                    path: email.path,
+                    tags: email.tags
                 })
                 .returning();
 

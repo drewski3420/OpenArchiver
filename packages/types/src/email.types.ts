@@ -49,6 +49,10 @@ export interface EmailObject {
     eml?: Buffer;
     /** The email address of the user whose mailbox this email belongs to. */
     userEmail?: string;
+    /** The folder path of the email in the source mailbox. */
+    path?: string;
+    /** An array of tags or labels associated with the email. */
+    tags?: string[];
 }
 
 // Define the structure of the document to be indexed in Meilisearch

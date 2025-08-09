@@ -99,28 +99,33 @@
 		<Table.Header>
 			<Table.Row>
 				<Table.Head>Date</Table.Head>
-				<Table.Head>Inbox</Table.Head>
 				<Table.Head>Subject</Table.Head>
 				<Table.Head>Sender</Table.Head>
-				<Table.Head>Attachments</Table.Head>
+				<Table.Head>Inbox</Table.Head>
+				<Table.Head>Path</Table.Head>
 				<Table.Head class="text-right">Actions</Table.Head>
 			</Table.Row>
 		</Table.Header>
-		<Table.Body>
+		<Table.Body class="text-sm">
 			{#if archivedEmails.items.length > 0}
 				{#each archivedEmails.items as email (email.id)}
 					<Table.Row>
 						<Table.Cell>{new Date(email.sentAt).toLocaleString()}</Table.Cell>
-						<Table.Cell>{email.userEmail}</Table.Cell>
+
 						<Table.Cell>
 							<div class="max-w-100 truncate">
-								<a href={`/dashboard/archived-emails/${email.id}`}>
+								<a class="link" href={`/dashboard/archived-emails/${email.id}`}>
 									{email.subject}
 								</a>
 							</div>
 						</Table.Cell>
-						<Table.Cell>{email.senderEmail}</Table.Cell>
-						<Table.Cell>{email.hasAttachments ? 'Yes' : 'No'}</Table.Cell>
+						<Table.Cell>
+							{email.senderEmail || email.senderName}
+						</Table.Cell>
+						<Table.Cell>{email.userEmail}</Table.Cell>
+						<Table.Cell>
+							<span class="  bg-muted truncate rounded p-1.5 text-xs">{email.path} </span>
+						</Table.Cell>
 						<Table.Cell class="text-right">
 							<a href={`/dashboard/archived-emails/${email.id}`}>
 								<Button variant="outline">View</Button>

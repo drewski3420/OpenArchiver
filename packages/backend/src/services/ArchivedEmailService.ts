@@ -59,7 +59,9 @@ export class ArchivedEmailService {
         return {
             items: items.map((item) => ({
                 ...item,
-                recipients: this.mapRecipients(item.recipients)
+                recipients: this.mapRecipients(item.recipients),
+                tags: (item.tags as string[] | null) || null,
+                path: item.path || null
             })),
             total: total.count,
             page,
@@ -103,7 +105,9 @@ export class ArchivedEmailService {
             ...email,
             recipients: this.mapRecipients(email.recipients),
             raw,
-            thread: threadEmails
+            thread: threadEmails,
+            tags: (email.tags as string[] | null) || null,
+            path: email.path || null
         };
 
         if (email.hasAttachments) {
