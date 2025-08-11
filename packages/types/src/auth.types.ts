@@ -11,9 +11,9 @@ export interface AuthTokenPayload extends JWTPayload {
      */
     email: string;
     /**
-     * The user's role, used for authorization.
+     * The user's assigned roles, which determines their permissions.
      */
-    role: User['role'];
+    roles: string[];
 }
 
 /**
@@ -27,5 +27,5 @@ export interface LoginResponse {
     /**
      * The authenticated user's information.
      */
-    user: Omit<User, 'passwordHash'>;
+    user: Omit<User, 'password'>;
 }

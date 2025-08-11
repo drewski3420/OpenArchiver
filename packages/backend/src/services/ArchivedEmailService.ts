@@ -1,4 +1,4 @@
-import { count, desc, eq, asc } from 'drizzle-orm';
+import { count, desc, eq, asc, and } from 'drizzle-orm';
 import { db } from '../database';
 import { archivedEmails, attachments, emailAttachments } from '../database/schema';
 import type { PaginatedArchivedEmails, ArchivedEmail, Recipient, ThreadEmail } from '@open-archiver/types';
@@ -59,7 +59,9 @@ export class ArchivedEmailService {
         return {
             items: items.map((item) => ({
                 ...item,
-                recipients: this.mapRecipients(item.recipients)
+                recipients: this.mapRecipients(item.recipients),
+                tags: (item.tags as string[] | null) || null,
+                path: item.path || null
             })),
             total: total.count,
             page,
@@ -81,7 +83,10 @@ export class ArchivedEmailService {
 
         if (email.threadId) {
             threadEmails = await db.query.archivedEmails.findMany({
-                where: eq(archivedEmails.threadId, email.threadId),
+                where: and(
+                    eq(archivedEmails.threadId, email.threadId),
+                    eq(archivedEmails.ingestionSourceId, email.ingestionSourceId)
+                ),
                 orderBy: [asc(archivedEmails.sentAt)],
                 columns: {
                     id: true,
@@ -100,7 +105,9 @@ export class ArchivedEmailService {
             ...email,
             recipients: this.mapRecipients(email.recipients),
             raw,
-            thread: threadEmails
+            thread: threadEmails,
+            tags: (email.tags as string[] | null) || null,
+            path: email.path || null
         };
 
         if (email.hasAttachments) {

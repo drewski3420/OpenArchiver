@@ -1,6 +1,6 @@
 import { Job, FlowChildJob } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
-import { IInitialImportJob } from '@open-archiver/types';
+import { IInitialImportJob, IngestionProvider } from '@open-archiver/types';
 import { EmailProviderFactory } from '../../services/EmailProviderFactory';
 import { flowProducer } from '../queues';
 import { logger } from '../../config/logger';
@@ -67,26 +67,15 @@ export default async (job: Job<IInitialImportJob>) => {
                 }
             });
         } else {
+            const fileBasedIngestions = IngestionService.returnFileBasedIngestions();
+            const finalStatus = fileBasedIngestions.includes(source.provider) ? 'imported' : 'active';
             // If there are no users, we can consider the import finished and set to active
             await IngestionService.update(ingestionSourceId, {
-                status: 'active',
+                status: finalStatus,
                 lastSyncFinishedAt: new Date(),
                 lastSyncStatusMessage: 'Initial import complete. No users found.'
             });
         }
-        // } else {
-        //     // For other providers, we might trigger a simpler bulk import directly
-        //     await new IngestionService().performBulkImport(job.data);
-        //     await flowProducer.add({
-        //         name: 'sync-cycle-finished',
-        //         queueName: 'ingestion',
-        //         data: {
-        //             ingestionSourceId,
-        //             userCount: 1,
-        //             isInitialImport: true
-        //         }
-        //     });
-        // }
 
         logger.info({ ingestionSourceId }, 'Finished initial import master job');
     } catch (error) {

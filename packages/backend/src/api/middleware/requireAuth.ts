@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { IAuthService } from '../../services/AuthService';
+import type { AuthService } from '../../services/AuthService';
 import type { AuthTokenPayload } from '@open-archiver/types';
 import 'dotenv/config';
 // By using module augmentation, we can add our custom 'user' property
@@ -12,7 +12,7 @@ declare global {
     }
 }
 
-export const requireAuth = (authService: IAuthService) => {
+export const requireAuth = (authService: AuthService) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {

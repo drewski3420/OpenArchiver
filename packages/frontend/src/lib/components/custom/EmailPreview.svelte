@@ -6,6 +6,7 @@
 		raw,
 		rawHtml
 	}: { raw?: Buffer | { type: 'Buffer'; data: number[] } | undefined; rawHtml?: string } = $props();
+
 	let parsedEmail: Email | null = $state(null);
 	let isLoading = $state(true);
 

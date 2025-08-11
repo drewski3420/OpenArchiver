@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
 import { logger } from '../../config/logger';
-import { SyncState, ProcessMailboxError } from '@open-archiver/types';
+import { SyncState, ProcessMailboxError, IngestionStatus, IngestionProvider } from '@open-archiver/types';
 import { db } from '../../database';
 import { ingestionSources } from '../../database/schema';
 import { eq } from 'drizzle-orm';
@@ -41,15 +41,28 @@ export default async (job: Job<ISyncCycleFinishedJob, any, string>) => {
 
         const finalSyncState = deepmerge(...successfulJobs.filter(s => s && Object.keys(s).length > 0));
 
-        let status: 'active' | 'error' = 'active';
+        const source = await IngestionService.findById(ingestionSourceId);
+        let status: IngestionStatus = 'active';
+        const fileBasedIngestions = IngestionService.returnFileBasedIngestions();
+
+        if (fileBasedIngestions.includes(source.provider)) {
+            status = 'imported';
+        }
         let message: string;
+
+        // Check for a specific rate-limit message from the successful jobs
+        const rateLimitMessage = successfulJobs.find(j => j.statusMessage)?.statusMessage;
 
         if (failedJobs.length > 0) {
             status = 'error';
             const errorMessages = failedJobs.map(j => j.message).join('\n');
             message = `Sync cycle completed with ${failedJobs.length} error(s):\n${errorMessages}`;
             logger.error({ ingestionSourceId, errors: errorMessages }, 'Sync cycle finished with errors.');
-        } else {
+        } else if (rateLimitMessage) {
+            message = rateLimitMessage;
+            logger.warn({ ingestionSourceId, message }, 'Sync cycle paused due to rate limiting.');
+        }
+        else {
             message = 'Continuous sync cycle finished successfully.';
             if (isInitialImport) {
                 message = `Initial import finished for ${userCount} mailboxes.`;

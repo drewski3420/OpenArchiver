@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { StorageController } from '../controllers/storage.controller';
 import { requireAuth } from '../middleware/requireAuth';
-import { IAuthService } from '../../services/AuthService';
+import { AuthService } from '../../services/AuthService';
 
 export const createStorageRouter = (
     storageController: StorageController,
-    authService: IAuthService
+    authService: AuthService
 ): Router => {
     const router = Router();
 

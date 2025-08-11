@@ -15,9 +15,10 @@ export type SyncState = {
         };
     };
     lastSyncTimestamp?: string;
+    statusMessage?: string;
 };
 
-export type IngestionProvider = 'google_workspace' | 'microsoft_365' | 'generic_imap';
+export type IngestionProvider = 'google_workspace' | 'microsoft_365' | 'generic_imap' | 'pst_import' | 'eml_import';
 
 export type IngestionStatus =
     | 'active'
@@ -26,7 +27,8 @@ export type IngestionStatus =
     | 'pending_auth'
     | 'syncing'
     | 'importing'
-    | 'auth_success';
+    | 'auth_success'
+    | 'imported';
 
 export interface BaseIngestionCredentials {
     type: IngestionProvider;
@@ -61,11 +63,25 @@ export interface Microsoft365Credentials extends BaseIngestionCredentials {
     tenantId: string;
 }
 
+export interface PSTImportCredentials extends BaseIngestionCredentials {
+    type: 'pst_import';
+    uploadedFileName: string;
+    uploadedFilePath: string;
+}
+
+export interface EMLImportCredentials extends BaseIngestionCredentials {
+    type: 'eml_import';
+    uploadedFileName: string;
+    uploadedFilePath: string;
+}
+
 // Discriminated union for all possible credential types
 export type IngestionCredentials =
     | GenericImapCredentials
     | GoogleWorkspaceCredentials
-    | Microsoft365Credentials;
+    | Microsoft365Credentials
+    | PSTImportCredentials
+    | EMLImportCredentials;
 
 export interface IngestionSource {
     id: string;
@@ -116,6 +132,12 @@ export interface IInitialImportJob {
 export interface IProcessMailboxJob {
     ingestionSourceId: string;
     userEmail: string;
+}
+
+export interface IPstProcessingJob {
+    ingestionSourceId: string;
+    filePath: string;
+    originalFilename: string;
 }
 
 export type MailboxUser = {

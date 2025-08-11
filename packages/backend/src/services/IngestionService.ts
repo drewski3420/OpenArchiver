@@ -4,7 +4,8 @@ import type {
     CreateIngestionSourceDto,
     UpdateIngestionSourceDto,
     IngestionSource,
-    IngestionCredentials
+    IngestionCredentials,
+    IngestionProvider
 } from '@open-archiver/types';
 import { and, desc, eq } from 'drizzle-orm';
 import { CryptoService } from './CryptoService';
@@ -19,6 +20,7 @@ import { logger } from '../config/logger';
 import { IndexingService } from './IndexingService';
 import { SearchService } from './SearchService';
 import { DatabaseService } from './DatabaseService';
+import { config } from '../config/index';
 
 
 export class IngestionService {
@@ -35,9 +37,12 @@ export class IngestionService {
         return { ...source, credentials: decryptedCredentials } as IngestionSource;
     }
 
+    public static returnFileBasedIngestions(): IngestionProvider[] {
+        return ['pst_import', 'eml_import'];
+    }
+
     public static async create(dto: CreateIngestionSourceDto): Promise<IngestionSource> {
         const { providerConfig, ...rest } = dto;
-
         const encryptedCredentials = CryptoService.encryptObject(providerConfig);
 
         const valuesToInsert = {
@@ -136,9 +141,16 @@ export class IngestionService {
 
         // Delete all emails and attachments from storage
         const storage = new StorageService();
-        const emailPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/`;
+        const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/`;
         await storage.delete(emailPath);
 
+        if (
+            (source.credentials.type === 'pst_import' || source.credentials.type === 'eml_import') &&
+            source.credentials.uploadedFilePath &&
+            (await storage.exists(source.credentials.uploadedFilePath))
+        ) {
+            await storage.delete(source.credentials.uploadedFilePath);
+        }
 
         // Delete all emails from the database
         // NOTE: This is done by database CASADE, change when CASADE relation no longer exists.
@@ -200,14 +212,13 @@ export class IngestionService {
     }
 
     public async performBulkImport(job: IInitialImportJob): Promise<void> {
-        console.log('performing bulk import');
         const { ingestionSourceId } = job;
         const source = await IngestionService.findById(ingestionSourceId);
         if (!source) {
             throw new Error(`Ingestion source ${ingestionSourceId} not found.`);
         }
 
-        console.log(`Starting bulk import for source: ${source.name} (${source.id})`);
+        logger.info(`Starting bulk import for source: ${source.name} (${source.id})`);
         await IngestionService.update(ingestionSourceId, {
             status: 'importing',
             lastSyncStartedAt: new Date()
@@ -229,22 +240,13 @@ export class IngestionService {
                 }
             } else {
                 // For single-mailbox providers, dispatch a single job
-                // console.log('source.credentials ', source.credentials);
                 await ingestionQueue.add('process-mailbox', {
                     ingestionSourceId: source.id,
                     userEmail: source.credentials.type === 'generic_imap' ? source.credentials.username : 'Default'
                 });
             }
-
-
-            // await IngestionService.update(ingestionSourceId, {
-            //     status: 'active',
-            //     lastSyncFinishedAt: new Date(),
-            //     lastSyncStatusMessage: 'Successfully initiated bulk import for all mailboxes.'
-            // });
-            // console.log(`Bulk import job dispatch finished for source: ${source.name} (${source.id})`);
         } catch (error) {
-            console.error(`Bulk import failed for source: ${source.name} (${source.id})`, error);
+            logger.error(`Bulk import failed for source: ${source.name} (${source.id})`, error);
             await IngestionService.update(ingestionSourceId, {
                 status: 'error',
                 lastSyncFinishedAt: new Date(),
@@ -286,10 +288,10 @@ export class IngestionService {
                 return;
             }
 
-            console.log('processing email, ', email.id, email.subject);
             const emlBuffer = email.eml ?? Buffer.from(email.body, 'utf-8');
             const emailHash = createHash('sha256').update(emlBuffer).digest('hex');
-            const emailPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${email.id}.eml`;
+            const sanitizedPath = email.path ? email.path : '';
+            const emailPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/emails/${sanitizedPath}${email.id}.eml`;
             await storage.put(emailPath, emlBuffer);
 
             const [archivedEmail] = await db
@@ -311,7 +313,9 @@ export class IngestionService {
                     storagePath: emailPath,
                     storageHashSha256: emailHash,
                     sizeBytes: emlBuffer.length,
-                    hasAttachments: email.attachments.length > 0
+                    hasAttachments: email.attachments.length > 0,
+                    path: email.path,
+                    tags: email.tags
                 })
                 .returning();
 
@@ -319,7 +323,7 @@ export class IngestionService {
                 for (const attachment of email.attachments) {
                     const attachmentBuffer = attachment.content;
                     const attachmentHash = createHash('sha256').update(attachmentBuffer).digest('hex');
-                    const attachmentPath = `open-archiver/${source.name.replaceAll(' ', '-')}-${source.id}/attachments/${attachment.filename}`;
+                    const attachmentPath = `${config.storage.openArchiverFolderName}/${source.name.replaceAll(' ', '-')}-${source.id}/attachments/${attachment.filename}`;
                     await storage.put(attachmentPath, attachmentBuffer);
 
                     const [newAttachment] = await db
@@ -348,7 +352,7 @@ export class IngestionService {
             }
             // adding to indexing queue
             //Instead: index by email (raw email object, ingestion id)
-            console.log('Indexing email: ', email.subject);
+            logger.info({ emailId: archivedEmail.id }, 'Indexing email');
             // await indexingQueue.add('index-email', {
             //     emailId: archivedEmail.id,
             // });

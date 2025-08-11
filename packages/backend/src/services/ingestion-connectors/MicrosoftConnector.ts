@@ -143,9 +143,9 @@ export class MicrosoftConnector implements IEmailConnector {
         try {
             const folders = this.listAllFolders(userEmail);
             for await (const folder of folders) {
-                if (folder.id) {
+                if (folder.id && folder.path) {
                     logger.info({ userEmail, folderId: folder.id, folderName: folder.displayName }, 'Syncing folder');
-                    yield* this.syncFolder(userEmail, folder.id, this.newDeltaTokens[folder.id]);
+                    yield* this.syncFolder(userEmail, folder.id, folder.path, this.newDeltaTokens[folder.id]);
                 }
             }
         } catch (error) {
@@ -159,20 +159,33 @@ export class MicrosoftConnector implements IEmailConnector {
      * @param userEmail The user principal name or ID.
      * @returns An async generator that yields each mail folder.
      */
-    private async *listAllFolders(userEmail: string): AsyncGenerator<MailFolder> {
-        let requestUrl: string | undefined = `/users/${userEmail}/mailFolders`;
+    private async *listAllFolders(userEmail: string, parentFolderId?: string, currentPath = ''): AsyncGenerator<MailFolder & { path: string; }> {
+        const requestUrl = parentFolderId
+            ? `/users/${userEmail}/mailFolders/${parentFolderId}/childFolders`
+            : `/users/${userEmail}/mailFolders`;
 
-        while (requestUrl) {
-            try {
-                const response = await this.graphClient.api(requestUrl).get();
+        try {
+            let response = await this.graphClient.api(requestUrl).get();
+
+            while (response) {
                 for (const folder of response.value as MailFolder[]) {
-                    yield folder;
+                    const newPath = currentPath ? `${currentPath}/${folder.displayName || ''}` : folder.displayName || '';
+                    yield { ...folder, path: newPath || '' };
+
+                    if (folder.childFolderCount && folder.childFolderCount > 0) {
+                        yield* this.listAllFolders(userEmail, folder.id, newPath);
+                    }
                 }
-                requestUrl = response['@odata.nextLink'];
-            } catch (error) {
-                logger.error({ err: error, userEmail }, 'Failed to list mail folders');
-                throw error; // Stop if we can't list folders
+
+                if (response['@odata.nextLink']) {
+                    response = await this.graphClient.api(response['@odata.nextLink']).get();
+                } else {
+                    break;
+                }
             }
+        } catch (error) {
+            logger.error({ err: error, userEmail }, 'Failed to list mail folders');
+            throw error;
         }
     }
 
@@ -186,6 +199,7 @@ export class MicrosoftConnector implements IEmailConnector {
     private async *syncFolder(
         userEmail: string,
         folderId: string,
+        path: string,
         deltaToken?: string
     ): AsyncGenerator<EmailObject> {
         let requestUrl: string | undefined;
@@ -208,7 +222,7 @@ export class MicrosoftConnector implements IEmailConnector {
                     if (message.id && !(message)['@removed']) {
                         const rawEmail = await this.getRawEmail(userEmail, message.id);
                         if (rawEmail) {
-                            const emailObject = await this.parseEmail(rawEmail, message.id, userEmail);
+                            const emailObject = await this.parseEmail(rawEmail, message.id, userEmail, path);
                             emailObject.threadId = message.conversationId; // Add conversationId as threadId
                             yield emailObject;
                         }
@@ -242,7 +256,7 @@ export class MicrosoftConnector implements IEmailConnector {
         }
     }
 
-    private async parseEmail(rawEmail: Buffer, messageId: string, userEmail: string): Promise<EmailObject> {
+    private async parseEmail(rawEmail: Buffer, messageId: string, userEmail: string, path: string): Promise<EmailObject> {
         const parsedEmail: ParsedMail = await simpleParser(rawEmail);
         const attachments = parsedEmail.attachments.map((attachment: Attachment) => ({
             filename: attachment.filename || 'untitled',
@@ -270,6 +284,7 @@ export class MicrosoftConnector implements IEmailConnector {
             headers: parsedEmail.headers,
             attachments,
             receivedAt: parsedEmail.date || new Date(),
+            path
         };
     }
 

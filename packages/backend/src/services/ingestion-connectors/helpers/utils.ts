@@ -34,6 +34,15 @@ export function getThreadId(headers: Headers): string | undefined {
         }
     }
 
+    const conversationIdHeader = headers.get('conversation-id');
+
+    if (conversationIdHeader) {
+        const conversationId = getHeaderValue(conversationIdHeader);
+        if (conversationId) {
+            return conversationId.trim();
+        }
+    }
+
     const messageIdHeader = headers.get('message-id');
 
     if (messageIdHeader) {

@@ -6,6 +6,7 @@
 	import EmailThread from '$lib/components/custom/EmailThread.svelte';
 	import { api } from '$lib/api.client';
 	import { browser } from '$app/environment';
+	import { formatBytes } from '$lib/utils';
 
 	let { data }: { data: PageData } = $props();
 	let email = $derived(data.email);
@@ -50,9 +51,38 @@
 				</Card.Header>
 				<Card.Content>
 					<div class="space-y-4">
-						<div>
+						<div class="space-y-1">
 							<h3 class="font-semibold">Recipients</h3>
-							<p>To: {email.recipients.map((r) => r.email).join(', ')}</p>
+							<Card.Description>
+								<p>To: {email.recipients.map((r) => r.email || r.name).join(', ')}</p>
+							</Card.Description>
+						</div>
+						<div class=" space-y-1">
+							<h3 class="font-semibold">Meta data</h3>
+							<Card.Description class="space-y-2">
+								{#if email.path}
+									<div class="flex flex-wrap items-center gap-2">
+										<span>Folder:</span>
+										<span class="  bg-muted truncate rounded p-1.5 text-xs"
+											>{email.path || '/'}</span
+										>
+									</div>
+								{/if}
+								{#if email.tags && email.tags.length > 0}
+									<div class="flex flex-wrap items-center gap-2">
+										<span> Tags: </span>
+										{#each email.tags as tag}
+											<span class="  bg-muted truncate rounded p-1.5 text-xs">{tag}</span>
+										{/each}
+									</div>
+								{/if}
+								<div class="flex flex-wrap items-center gap-2">
+									<span>size:</span>
+									<span class="  bg-muted truncate rounded p-1.5 text-xs"
+										>{formatBytes(email.sizeBytes)}</span
+									>
+								</div>
+							</Card.Description>
 						</div>
 						<div>
 							<h3 class="font-semibold">Email Preview</h3>

@@ -111,6 +111,10 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 }
 
+.link {
+	@apply hover:text-primary font-medium hover:underline hover:underline-offset-2;
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

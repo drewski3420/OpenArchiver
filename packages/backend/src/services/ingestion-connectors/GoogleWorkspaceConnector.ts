@@ -10,7 +10,7 @@ import type {
 import type { IEmailConnector } from '../EmailProviderFactory';
 import { logger } from '../../config/logger';
 import { simpleParser, ParsedMail, Attachment, AddressObject, Headers } from 'mailparser';
-import { getThreadId } from './utils';
+import { getThreadId } from './helpers/utils';
 
 /**
  * A connector for Google Workspace that uses a service account with domain-wide delegation
@@ -168,9 +168,18 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                     for (const messageAdded of historyRecord.messagesAdded) {
                         if (messageAdded.message?.id) {
                             try {
+                                const messageId = messageAdded.message.id;
+                                const metadataResponse = await gmail.users.messages.get({
+                                    userId: userEmail,
+                                    id: messageId,
+                                    format: 'METADATA',
+                                    fields: 'labelIds'
+                                });
+                                const labels = await this.getLabelDetails(gmail, userEmail, metadataResponse.data.labelIds || []);
+
                                 const msgResponse = await gmail.users.messages.get({
                                     userId: userEmail,
-                                    id: messageAdded.message.id,
+                                    id: messageId,
                                     format: 'RAW'
                                 });
 
@@ -205,6 +214,8 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                                         headers: parsedEmail.headers,
                                         attachments,
                                         receivedAt: parsedEmail.date || new Date(),
+                                        path: labels.path,
+                                        tags: labels.tags
                                     };
                                 }
                             } catch (error: any) {
@@ -243,9 +254,18 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
             for (const message of messages) {
                 if (message.id) {
                     try {
+                        const messageId = message.id;
+                        const metadataResponse = await gmail.users.messages.get({
+                            userId: userEmail,
+                            id: messageId,
+                            format: 'METADATA',
+                            fields: 'labelIds'
+                        });
+                        const labels = await this.getLabelDetails(gmail, userEmail, metadataResponse.data.labelIds || []);
+
                         const msgResponse = await gmail.users.messages.get({
                             userId: userEmail,
-                            id: message.id,
+                            id: messageId,
                             format: 'RAW'
                         });
 
@@ -280,6 +300,8 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                                 headers: parsedEmail.headers,
                                 attachments,
                                 receivedAt: parsedEmail.date || new Date(),
+                                path: labels.path,
+                                tags: labels.tags
                             };
                         }
                     } catch (error: any) {
@@ -312,5 +334,30 @@ export class GoogleWorkspaceConnector implements IEmailConnector {
                 }
             }
         };
+    }
+
+    private labelCache: Map<string, gmail_v1.Schema$Label> = new Map();
+
+    private async getLabelDetails(gmail: gmail_v1.Gmail, userEmail: string, labelIds: string[]): Promise<{ path: string, tags: string[]; }> {
+        const tags: string[] = [];
+        let path = '';
+
+        for (const labelId of labelIds) {
+            let label = this.labelCache.get(labelId);
+            if (!label) {
+                const res = await gmail.users.labels.get({ userId: userEmail, id: labelId });
+                label = res.data;
+                this.labelCache.set(labelId, label);
+            }
+
+            if (label.name) {
+                tags.push(label.name);
+                if (label.type === 'user') {
+                    path = path ? `${path}/${label.name}` : label.name;
+                }
+            }
+        }
+
+        return { path, tags };
     }
 }

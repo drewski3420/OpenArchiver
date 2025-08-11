@@ -70,8 +70,9 @@
 						</Card.Header>
 						<Card.Content>
 							<div
-								class="  text-2xl font-bold text-green-500"
+								class=" text-2xl font-bold"
 								class:text-destructive={data.stats.failedIngestionsLast7Days > 0}
+								class:text-green-600={data.stats.failedIngestionsLast7Days <= 0}
 							>
 								{data.stats.failedIngestionsLast7Days}
 							</div>

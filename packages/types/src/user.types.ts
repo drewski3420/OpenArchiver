@@ -1,26 +1,34 @@
-/**
- * Defines the possible roles a user can have within the system.
- */
-export type UserRole = 'Super Administrator' | 'Auditor/Compliance Officer' | 'End User';
+import { PolicyStatement } from './iam.types';
 
 /**
  * Represents a user account in the system.
+ * This is the core user object that will be stored in the database.
  */
 export interface User {
-    /**
-     * The unique identifier for the user.
-     */
     id: string;
-    /**
-     * The user's email address, used for login.
-     */
+    first_name: string | null;
+    last_name: string | null;
     email: string;
-    /**
-     * The user's assigned role, which determines their permissions.
-     */
-    role: UserRole;
-    /**
-     * The hashed password for the user. This should never be exposed to the client.
-     */
-    passwordHash: string;
+}
+
+/**
+ * Represents a user's session.
+ * This is used to track a user's login status.
+ */
+export interface Session {
+    id: string;
+    userId: string;
+    expiresAt: Date;
+}
+
+/**
+ * Defines a role that can be assigned to users.
+ * Roles are used to group a set of permissions together.
+ */
+export interface Role {
+    id: string;
+    name: string;
+    policies: PolicyStatement[];
+    createdAt: Date;
+    updatedAt: Date;
 }

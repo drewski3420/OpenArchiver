@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { IngestionController } from '../controllers/ingestion.controller';
 import { requireAuth } from '../middleware/requireAuth';
-import { IAuthService } from '../../services/AuthService';
+import { AuthService } from '../../services/AuthService';
 
 export const createIngestionRouter = (
     ingestionController: IngestionController,
-    authService: IAuthService
+    authService: AuthService
 ): Router => {
     const router = Router();
 

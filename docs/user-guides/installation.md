@@ -37,7 +37,6 @@ You must change the following placeholder values to secure your instance:
 -   `REDIS_PASSWORD`: A strong, unique password for the Valkey/Redis service.
 -   `MEILI_MASTER_KEY`: A complex key for Meilisearch.
 -   `JWT_SECRET`: A long, random string for signing authentication tokens.
--   `ADMIN_PASSWORD`: A strong password for the initial admin user.
 -   `ENCRYPTION_KEY`: A 32-byte hex string for encrypting sensitive data in the database. You can generate one with the following command:
     ```bash
     openssl rand -hex 32
@@ -104,14 +103,12 @@ These variables are used by `docker-compose.yml` to configure the services.
 
 #### Security & Authentication
 
-| Variable         | Description                                         | Default Value                              |
-| ---------------- | --------------------------------------------------- | ------------------------------------------ |
-| `JWT_SECRET`     | A secret key for signing JWT tokens.                | `a-very-secret-key-that-you-should-change` |
-| `JWT_EXPIRES_IN` | The expiration time for JWT tokens.                 | `7d`                                       |
-| `ADMIN_EMAIL`    | The email for the initial admin user.               | `admin@local.com`                          |
-| `ADMIN_PASSWORD` | The password for the initial admin user.            | `a_strong_password_that_you_should_change` |
-| `SUPER_API_KEY`  | An API key with super admin privileges.             |                                            |
-| `ENCRYPTION_KEY` | A 32-byte hex string for encrypting sensitive data. |                                            |
+| Variable         | Description                                                         | Default Value                              |
+| ---------------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| `JWT_SECRET`     | A secret key for signing JWT tokens.                                | `a-very-secret-key-that-you-should-change` |
+| `JWT_EXPIRES_IN` | The expiration time for JWT tokens.                                 | `7d`                                       |
+| `SUPER_API_KEY`  | An API key with super admin privileges.                             |                                            |
+| `ENCRYPTION_KEY` | A 32-byte hex string for encrypting sensitive data in the database. |                                            |
 
 ## 3. Run the Application
 
@@ -161,3 +158,141 @@ docker compose pull
 # Restart the services with the new images
 docker compose up -d
 ```
+
+## Deploying on Coolify
+
+If you are deploying Open Archiver on [Coolify](https://coolify.io/), it is recommended to let Coolify manage the Docker networks for you. This can help avoid potential routing conflicts and simplify your setup.
+
+To do this, you will need to make a small modification to your `docker-compose.yml` file.
+
+### Modify `docker-compose.yml` for Coolify
+
+1.  **Open your `docker-compose.yml` file** in a text editor.
+
+2.  **Remove all `networks` sections** from the file. This includes the network configuration for each service and the top-level network definition.
+
+    Specifically, you need to remove:
+
+    -   The `networks: - open-archiver-net` lines from the `open-archiver`, `postgres`, `valkey`, and `meilisearch` services.
+    -   The entire `networks:` block at the end of the file.
+
+    Here is an example of what to remove from a service:
+
+    ```diff
+    services:
+      open-archiver:
+        image: logiclabshq/open-archiver:latest
+        # ... other settings
+    -   networks:
+    -     - open-archiver-net
+    ```
+
+    And remove this entire block from the end of the file:
+
+    ```diff
+    - networks:
+    -   open-archiver-net:
+    -     driver: bridge
+    ```
+
+3.  **Save the modified `docker-compose.yml` file.**
+
+By removing these sections, you allow Coolify to automatically create and manage the necessary networks, ensuring that all services can communicate with each other and are correctly exposed through Coolify's reverse proxy.
+
+After making these changes, you can proceed with deploying your application on Coolify as you normally would.
+
+## Where is my data stored (When using local storage and Docker)?
+
+If you are using local storage to store your emails, based on your `docker-compose.yml` file, your data is being stored in what's called a "named volume" (`archiver-data`). That's why you're not seeing the files in the `./data/open-archiver` directory you created.
+
+1.  **List all Docker volumes**:
+
+Run this command to see all the volumes on your system:
+
+    ```bash
+    docker volume ls
+    ```
+
+2.  **Identify the correct volume**:
+
+Look through the list for a volume name that ends with `_archiver-data`. The part before that will be your project's directory name. For example, if your project is in a folder named `OpenArchiver`, the volume will be `openarchiver_archiver-data` But it can be a randomly generated hash.
+
+3.  **Inspect the correct volume**:
+
+Once you've identified the correct volume name, use it in the `inspect` command. For example:
+
+    ```bash
+    docker volume inspect <your_volume_name_here>
+    ```
+
+This will give you the correct `Mountpoint` path where your data is being stored. It will look something like this (the exact path will vary depending on your system):
+
+    ```json
+    {
+        "CreatedAt": "2025-07-25T11:22:19Z",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.compose.config-hash": "---",
+            "com.docker.compose.project": "---",
+            "com.docker.compose.version": "2.38.2",
+            "com.docker.compose.volume": "us8wwos0o4ok4go4gc8cog84_archiver-data"
+        },
+        "Mountpoint": "/var/lib/docker/volumes/us8wwos0o4ok4go4gc8cog84_archiver-data/_data",
+        "Name": "us8wwos0o4ok4go4gc8cog84_archiver-data",
+        "Options": null,
+        "Scope": "local"
+    }
+    ```
+
+In this example, the data is located at `/var/lib/docker/volumes/us8wwos0o4ok4go4gc8cog84_archiver-data/_data`. You can then `cd` into that directory to see your files.
+
+### To save data to a specific folder
+
+To save the data to a specific folder on your machine, you'll need to make a change to your `docker-compose.yml`. You need to switch from a named volume to a "bind mount".
+
+Here’s how you can do it:
+
+1.  **Edit `docker-compose.yml`**:
+
+Open the `docker-compose.yml` file and find the `open-archiver` service. You're going to change the `volumes` section.
+
+    **Change this:**
+
+    ```yaml
+    services:
+      open-archiver:
+        # ... other config
+        volumes:
+          - archiver-data:/var/data/open-archiver
+    ```
+
+    **To this:**
+
+    ```yaml
+    services:
+      open-archiver:
+        # ... other config
+        volumes:
+          - ./data/open-archiver:/var/data/open-archiver
+    ```
+
+You'll also want to remove the `archiver-data` volume definition at the bottom of the file, since it's no longer needed.
+
+    **Remove this whole block:**
+
+    ```yaml
+    volumes:
+      # ... other volumes
+      archiver-data:
+          driver: local
+    ```
+
+2.  **Restart your containers**:
+
+After you've saved the changes, run the following command in your terminal to apply them. The `--force-recreate` flag will ensure the container is recreated with the new volume settings.
+
+    ```bash
+    docker-compose up -d --force-recreate
+    ```
+
+After this, any new data will be saved directly into the `./data/open-archiver` folder in your project directory.

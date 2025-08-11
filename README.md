@@ -1,14 +1,17 @@
 # Open Archiver
 
-![Docker Compose](https://img.shields.io/badge/Docker%20Compose-up-4A4A4A?style=for-the-badge&logo=docker)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-6B6B6B?style=for-the-badge&logo=postgresql)
-![Meilisearch](https://img.shields.io/badge/Meilisearch-2F2F2F?style=for-the-badge&logo=meilisearch)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Meilisearch](https://img.shields.io/badge/Meilisearch-FF5A5F?style=for-the-badge&logo=meilisearch&logoColor=white)](https://www.meilisearch.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
+[![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)](https://svelte.dev/)
 
-**A secure, sovereign, and affordable open-source platform for email archiving and eDiscovery.**
+**A secure, sovereign, and open-source platform for email archiving and eDiscovery.**
 
-Open Archiver provides a robust, self-hosted solution for archiving, storing, indexing, and searching emails from major platforms, including Google Workspace (Gmail), Microsoft 365, as well as generic IMAP-enabled email inboxes. Use Open Archiver to keep a permanent, tamper-proof record of your communication history, free from vendor lock-in.
+Open Archiver provides a robust, self-hosted solution for archiving, storing, indexing, and searching emails from major platforms, including Google Workspace (Gmail), Microsoft 365, PST files, as well as generic IMAP-enabled email inboxes. Use Open Archiver to keep a permanent, tamper-proof record of your communication history, free from vendor lock-in.
 
-## Screenshots
+## 📸 Screenshots
 
 ![Open Archiver Preview](assets/screenshots/dashboard-1.png)
 _Dashboard_
@@ -19,7 +22,7 @@ _Archived emails_
 ![Open Archiver Preview](assets/screenshots/search.png)
 _Full-text search across all your emails and attachments_
 
-## Community
+## 👨‍👩‍👧‍👦 Join our community!
 
 We are committed to build an engaging community around Open Archiver, and we are inviting all of you to join our community on Discord to get real-time support and connect with the team.
 
@@ -27,7 +30,7 @@ We are committed to build an engaging community around Open Archiver, and we are
 
 [![Bluesky](https://img.shields.io/badge/Follow%20us%20on%20Bluesky-0265D4?style=for-the-badge&logo=bluesky&logoColor=white)](https://bsky.app/profile/openarchiver.bsky.social)
 
-## Live demo
+## 🚀 Live demo
 
 Check out the live demo here: https://demo.openarchiver.com
 
@@ -35,16 +38,24 @@ Username: admin@local.com
 
 Password: openarchiver_demo
 
-## Key Features
+## ✨ Key Features
 
--   **Universal Ingestion**: Connect to Google Workspace, Microsoft 365, and standard IMAP servers to perform initial bulk imports and maintain continuous, real-time synchronization.
+-   **Universal Ingestion**: Connect to any email provider to perform initial bulk imports and maintain continuous, real-time synchronization. Ingestion sources include:
+
+    -   IMAP connection
+    -   Google Workspace
+    -   Microsoft 365
+    -   PST files
+    -   Zipped .eml files
+
 -   **Secure & Efficient Storage**: Emails are stored in the standard `.eml` format. The system uses deduplication and compression to minimize storage costs. All data is encrypted at rest.
 -   **Pluggable Storage Backends**: Support both local filesystem storage and S3-compatible object storage (like AWS S3 or MinIO).
 -   **Powerful Search & eDiscovery**: A high-performance search engine indexes the full text of emails and attachments (PDF, DOCX, etc.).
+-   **Thread discovery**: The ability to discover if an email belongs to a thread/conversation and present the context.
 -   **Compliance & Retention**: Define granular retention policies to automatically manage the lifecycle of your data. Place legal holds on communications to prevent deletion during litigation (TBD).
 -   **Comprehensive Auditing**: An immutable audit trail logs all system activities, ensuring you have a clear record of who accessed what and when (TBD).
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 Open Archiver is built on a modern, scalable, and maintainable technology stack:
 
@@ -55,7 +66,7 @@ Open Archiver is built on a modern, scalable, and maintainable technology stack:
 -   **Database**: PostgreSQL for metadata, user management, and audit logs
 -   **Deployment**: Docker Compose deployment
 
-## Deployment
+## 📦 Deployment
 
 ### Prerequisites
 
@@ -91,7 +102,7 @@ Open Archiver is built on a modern, scalable, and maintainable technology stack:
 4.  **Access the application:**
     Once the services are running, you can access the Open Archiver web interface by navigating to `http://localhost:3000` in your web browser.
 
-## Data Source Configuration
+## ⚙️ Data Source Configuration
 
 After deploying the application, you will need to configure one or more ingestion sources to begin archiving emails. Follow our detailed guides to connect to your email provider:
 
@@ -99,7 +110,7 @@ After deploying the application, you will need to configure one or more ingestio
 -   [Connecting to Microsoft 365](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
 -   [Connecting to a Generic IMAP Server](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions from the community!
 
@@ -109,4 +120,6 @@ We welcome contributions from the community!
 
 Please read our `CONTRIBUTING.md` file for more details on our code of conduct and the process for submitting pull requests.
 
-## Star History [![Star History Chart](https://api.star-history.com/svg?repos=LogicLabs-OU/OpenArchiver&type=Date)](https://www.star-history.com/#LogicLabs-OU/OpenArchiver&Date)
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=LogicLabs-OU/OpenArchiver&type=Date)](https://www.star-history.com/#LogicLabs-OU/OpenArchiver&Date)

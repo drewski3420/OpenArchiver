@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { SearchController } from '../controllers/search.controller';
 import { requireAuth } from '../middleware/requireAuth';
-import { IAuthService } from '../../services/AuthService';
+import { AuthService } from '../../services/AuthService';
 
 export const createSearchRouter = (
     searchController: SearchController,
-    authService: IAuthService
+    authService: AuthService
 ): Router => {
     const router = Router();
 
