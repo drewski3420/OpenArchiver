@@ -23,7 +23,8 @@
 		{ value: 'generic_imap', label: 'Generic IMAP' },
 		{ value: 'google_workspace', label: 'Google Workspace' },
 		{ value: 'microsoft_365', label: 'Microsoft 365' },
-		{ value: 'pst_import', label: 'PST Import' }
+		{ value: 'pst_import', label: 'PST Import' },
+		{ value: 'eml_import', label: 'EML Import' }
 	];
 
 	let formData: CreateIngestionSourceDto = $state({
@@ -185,6 +186,16 @@
 			<Label for="pst-file" class="text-left">PST File</Label>
 			<div class="col-span-3 flex flex-row items-center space-x-2">
 				<Input id="pst-file" type="file" class="" accept=".pst" onchange={handleFileChange} />
+				{#if fileUploading}
+					<span class=" text-primary animate-spin"><Loader2 /></span>
+				{/if}
+			</div>
+		</div>
+	{:else if formData.provider === 'eml_import'}
+		<div class="grid grid-cols-4 items-center gap-4">
+			<Label for="eml-file" class="text-left">EML File</Label>
+			<div class="col-span-3 flex flex-row items-center space-x-2">
+				<Input id="eml-file" type="file" class="" accept=".zip" onchange={handleFileChange} />
 				{#if fileUploading}
 					<span class=" text-primary animate-spin"><Loader2 /></span>
 				{/if}

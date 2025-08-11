@@ -1,6 +1,6 @@
 import { Job, FlowChildJob } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
-import { IInitialImportJob } from '@open-archiver/types';
+import { IInitialImportJob, IngestionProvider } from '@open-archiver/types';
 import { EmailProviderFactory } from '../../services/EmailProviderFactory';
 import { flowProducer } from '../queues';
 import { logger } from '../../config/logger';
@@ -67,7 +67,8 @@ export default async (job: Job<IInitialImportJob>) => {
                 }
             });
         } else {
-            const finalStatus = source.provider === 'pst_import' ? 'imported' : 'active';
+            const fileBasedIngestions = IngestionService.returnFileBasedIngestions();
+            const finalStatus = fileBasedIngestions.includes(source.provider) ? 'imported' : 'active';
             // If there are no users, we can consider the import finished and set to active
             await IngestionService.update(ingestionSourceId, {
                 status: finalStatus,

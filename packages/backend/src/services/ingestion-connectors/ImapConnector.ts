@@ -240,7 +240,7 @@ export class ImapConnector implements IEmailConnector {
         const threadId = getThreadId(parsedEmail.headers);
 
         return {
-            id: msg.uid.toString(),
+            id: parsedEmail.messageId || msg.uid.toString(),
             threadId: threadId,
             from: mapAddresses(parsedEmail.from),
             to: mapAddresses(parsedEmail.to),

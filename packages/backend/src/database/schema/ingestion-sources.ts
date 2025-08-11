@@ -4,7 +4,8 @@ export const ingestionProviderEnum = pgEnum('ingestion_provider', [
     'google_workspace',
     'microsoft_365',
     'generic_imap',
-    'pst_import'
+    'pst_import',
+    'eml_import'
 ]);
 
 export const ingestionStatusEnum = pgEnum('ingestion_status', [

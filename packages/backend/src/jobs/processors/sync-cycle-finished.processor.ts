@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import { IngestionService } from '../../services/IngestionService';
 import { logger } from '../../config/logger';
-import { SyncState, ProcessMailboxError, IngestionStatus } from '@open-archiver/types';
+import { SyncState, ProcessMailboxError, IngestionStatus, IngestionProvider } from '@open-archiver/types';
 import { db } from '../../database';
 import { ingestionSources } from '../../database/schema';
 import { eq } from 'drizzle-orm';
@@ -43,7 +43,9 @@ export default async (job: Job<ISyncCycleFinishedJob, any, string>) => {
 
         const source = await IngestionService.findById(ingestionSourceId);
         let status: IngestionStatus = 'active';
-        if (source.provider === 'pst_import') {
+        const fileBasedIngestions = IngestionService.returnFileBasedIngestions();
+
+        if (fileBasedIngestions.includes(source.provider)) {
             status = 'imported';
         }
         let message: string;

@@ -124,7 +124,9 @@
 						</Table.Cell>
 						<Table.Cell>{email.userEmail}</Table.Cell>
 						<Table.Cell>
-							<span class="  bg-muted truncate rounded p-1.5 text-xs">{email.path} </span>
+							{#if email.path}
+								<span class="  bg-muted truncate rounded p-1.5 text-xs">{email.path} </span>
+							{/if}
 						</Table.Cell>
 						<Table.Cell class="text-right">
 							<a href={`/dashboard/archived-emails/${email.id}`}>

@@ -18,7 +18,7 @@ export type SyncState = {
     statusMessage?: string;
 };
 
-export type IngestionProvider = 'google_workspace' | 'microsoft_365' | 'generic_imap' | 'pst_import';
+export type IngestionProvider = 'google_workspace' | 'microsoft_365' | 'generic_imap' | 'pst_import' | 'eml_import';
 
 export type IngestionStatus =
     | 'active'
@@ -69,12 +69,19 @@ export interface PSTImportCredentials extends BaseIngestionCredentials {
     uploadedFilePath: string;
 }
 
+export interface EMLImportCredentials extends BaseIngestionCredentials {
+    type: 'eml_import';
+    uploadedFileName: string;
+    uploadedFilePath: string;
+}
+
 // Discriminated union for all possible credential types
 export type IngestionCredentials =
     | GenericImapCredentials
     | GoogleWorkspaceCredentials
     | Microsoft365Credentials
-    | PSTImportCredentials;
+    | PSTImportCredentials
+    | EMLImportCredentials;
 
 export interface IngestionSource {
     id: string;

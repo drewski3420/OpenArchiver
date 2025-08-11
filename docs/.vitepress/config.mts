@@ -37,9 +37,11 @@ export default defineConfig({
                         link: '/user-guides/email-providers/',
                         collapsed: true,
                         items: [
-                            { text: 'Google Workspace', link: '/user-guides/email-providers/google-workspace' },
                             { text: 'Generic IMAP Server', link: '/user-guides/email-providers/imap' },
-                            { text: 'Microsoft 365', link: '/user-guides/email-providers/microsoft-365' }
+                            { text: 'Google Workspace', link: '/user-guides/email-providers/google-workspace' },
+                            { text: 'Microsoft 365', link: '/user-guides/email-providers/microsoft-365' },
+                            { text: 'EML Import', link: '/user-guides/email-providers/eml' },
+                            { text: 'PST Import', link: '/user-guides/email-providers/pst' }
                         ]
                     }
                 ]

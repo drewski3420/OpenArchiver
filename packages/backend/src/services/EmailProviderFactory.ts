@@ -4,6 +4,7 @@ import type {
     Microsoft365Credentials,
     GenericImapCredentials,
     PSTImportCredentials,
+    EMLImportCredentials,
     EmailObject,
     SyncState,
     MailboxUser
@@ -12,6 +13,7 @@ import { GoogleWorkspaceConnector } from './ingestion-connectors/GoogleWorkspace
 import { MicrosoftConnector } from './ingestion-connectors/MicrosoftConnector';
 import { ImapConnector } from './ingestion-connectors/ImapConnector';
 import { PSTConnector } from './ingestion-connectors/PSTConnector';
+import { EMLConnector } from './ingestion-connectors/EMLConnector';
 
 // Define a common interface for all connectors
 export interface IEmailConnector {
@@ -36,6 +38,8 @@ export class EmailProviderFactory {
                 return new ImapConnector(credentials as GenericImapCredentials);
             case 'pst_import':
                 return new PSTConnector(credentials as PSTImportCredentials);
+            case 'eml_import':
+                return new EMLConnector(credentials as EMLImportCredentials);
             default:
                 throw new Error(`Unsupported provider: ${source.provider}`);
         }
