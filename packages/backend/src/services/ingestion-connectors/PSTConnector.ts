@@ -159,7 +159,7 @@ export class PSTConnector implements IEmailConnector {
         try {
             pstFile = await this.loadPstFile();
             const root = pstFile.getRootFolder();
-            yield* this.processFolder(root, '');
+            yield* this.processFolder(root, '', userEmail);
         } catch (error) {
             logger.error({ error }, 'Failed to fetch email.');
             pstFile?.close();
@@ -171,7 +171,7 @@ export class PSTConnector implements IEmailConnector {
         }
     }
 
-    private async *processFolder(folder: PSTFolder, currentPath: string): AsyncGenerator<EmailObject | null> {
+    private async *processFolder(folder: PSTFolder, currentPath: string, userEmail: string): AsyncGenerator<EmailObject | null> {
         const folderName = folder.displayName.toLowerCase();
         if (DELETED_FOLDERS.has(folderName) || JUNK_FOLDERS.has(folderName)) {
             logger.info(`Skipping folder: ${folder.displayName}`);
@@ -183,7 +183,7 @@ export class PSTConnector implements IEmailConnector {
         if (folder.contentCount > 0) {
             let email: PSTMessage | null = folder.getNextChild();
             while (email != null) {
-                yield await this.parseMessage(email, newPath);
+                yield await this.parseMessage(email, newPath, userEmail);
                 try {
                     email = folder.getNextChild();
                 } catch (error) {
@@ -195,12 +195,12 @@ export class PSTConnector implements IEmailConnector {
 
         if (folder.hasSubfolders) {
             for (const subFolder of folder.getSubFolders()) {
-                yield* this.processFolder(subFolder, newPath);
+                yield* this.processFolder(subFolder, newPath, userEmail);
             }
         }
     }
 
-    private async parseMessage(msg: PSTMessage, path: string): Promise<EmailObject> {
+    private async parseMessage(msg: PSTMessage, path: string, userEmail: string): Promise<EmailObject> {
         const emlContent = await this.constructEml(msg);
         const emlBuffer = Buffer.from(emlContent, 'utf-8');
         const parsedEmail: ParsedMail = await simpleParser(emlBuffer);
@@ -218,6 +218,11 @@ export class PSTConnector implements IEmailConnector {
             return addressArray.flatMap(a => a.value.map(v => ({ name: v.name, address: v.address?.replaceAll(`'`, '') || '' })));
         };
 
+        const from = mapAddresses(parsedEmail.from);
+        if (from.length === 0) {
+            from.push({ name: 'No Sender', address: 'No Sender' });
+        }
+
         const threadId = getThreadId(parsedEmail.headers);
         let messageId = msg.internetMessageId;
         // generate a unique ID for this message
@@ -228,7 +233,7 @@ export class PSTConnector implements IEmailConnector {
         return {
             id: messageId,
             threadId: threadId,
-            from: mapAddresses(parsedEmail.from),
+            from,
             to: mapAddresses(parsedEmail.to),
             cc: mapAddresses(parsedEmail.cc),
             bcc: mapAddresses(parsedEmail.bcc),

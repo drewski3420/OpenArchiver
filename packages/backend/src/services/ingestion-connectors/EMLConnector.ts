@@ -174,11 +174,16 @@ export class EMLConnector implements IEmailConnector {
             messageId = `generated-${createHash('sha256').update(emlBuffer).digest('hex')}`;
         }
 
+        const from = mapAddresses(parsedEmail.from);
+        if (from.length === 0) {
+            from.push({ name: 'No Sender', address: 'No Sender' });
+        }
+
 
         return {
             id: messageId,
             threadId: threadId,
-            from: mapAddresses(parsedEmail.from),
+            from,
             to: mapAddresses(parsedEmail.to),
             cc: mapAddresses(parsedEmail.cc),
             bcc: mapAddresses(parsedEmail.bcc),
