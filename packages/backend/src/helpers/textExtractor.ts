@@ -3,17 +3,31 @@ import mammoth from 'mammoth';
 import xlsx from 'xlsx';
 
 function extractTextFromPdf(buffer: Buffer): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const pdfParser = new PDFParser(null, true);
+        let completed = false;
 
-        pdfParser.on('pdfParser_dataError', (errData: any) =>
-            reject(new Error(errData.parserError))
+        const finish = (text: string) => {
+            if (completed) return;
+            completed = true;
+            pdfParser.removeAllListeners();
+            resolve(text);
+        };
+
+        pdfParser.on('pdfParser_dataError', () => finish(''));
+        pdfParser.on('pdfParser_dataReady', () =>
+            finish(pdfParser.getRawTextContent())
         );
-        pdfParser.on('pdfParser_dataReady', () => {
-            resolve(pdfParser.getRawTextContent());
-        });
 
-        pdfParser.parseBuffer(buffer);
+        try {
+            pdfParser.parseBuffer(buffer);
+        } catch (err) {
+            console.error('Error parsing PDF buffer', err);
+            finish('');
+        }
+
+        // Prevent hanging if the parser never emits events
+        setTimeout(() => finish(''), 10000);
     });
 }
 
