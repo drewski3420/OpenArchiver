@@ -83,14 +83,14 @@
 
 			formData.providerConfig.uploadedFilePath = result.filePath;
 			formData.providerConfig.uploadedFileName = file.name;
-			console.log(formData.providerConfig.uploadedFilePath);
+
 			fileUploading = false;
 		} catch (error) {
 			fileUploading = false;
 			setAlert({
 				type: 'error',
-				title: 'Upload Failed',
-				message: 'PST file upload failed. Please try again.' + error.message,
+				title: 'Upload Failed, please try again',
+				message: JSON.stringify(error),
 				duration: 5000,
 				show: true
 			});
