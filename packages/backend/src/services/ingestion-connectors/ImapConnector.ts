@@ -166,7 +166,7 @@ export class ImapConnector implements IEmailConnector {
                 const lastUid = syncState?.imap?.[mailboxPath]?.maxUid;
                 let currentMaxUid = lastUid || 0;
 
-                if (!lastUid && mailbox.exists > 0) {
+                if (mailbox.exists > 0) {
                     const lastMessage = await this.client.fetchOne(String(mailbox.exists), { uid: true });
                     if (lastMessage && lastMessage.uid > currentMaxUid) {
                         currentMaxUid = lastMessage.uid;
@@ -178,15 +178,13 @@ export class ImapConnector implements IEmailConnector {
                 if (mailbox.exists > 0) {
                     const BATCH_SIZE = 250; // A configurable batch size
                     let startUid = (lastUid || 0) + 1;
+                    const maxUidToFetch = currentMaxUid;
 
-                    while (true) {
-                        const endUid = startUid + BATCH_SIZE - 1;
+                    while (startUid <= maxUidToFetch) {
+                        const endUid = Math.min(startUid + BATCH_SIZE - 1, maxUidToFetch);
                         const searchCriteria = { uid: `${startUid}:${endUid}` };
-                        let messagesInBatch = 0;
 
                         for await (const msg of this.client.fetch(searchCriteria, { envelope: true, source: true, bodyStructure: true, uid: true })) {
-                            messagesInBatch++;
-
                             if (lastUid && msg.uid <= lastUid) {
                                 continue;
                             }
@@ -198,11 +196,6 @@ export class ImapConnector implements IEmailConnector {
                             if (msg.envelope && msg.source) {
                                 yield await this.parseMessage(msg, mailboxPath);
                             }
-                        }
-
-                        // If this batch was smaller than the batch size, we've reached the end
-                        if (messagesInBatch < BATCH_SIZE) {
-                            break;
                         }
 
                         // Move to the next batch
