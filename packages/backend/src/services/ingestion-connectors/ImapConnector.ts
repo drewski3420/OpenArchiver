@@ -193,8 +193,15 @@ export class ImapConnector implements IEmailConnector {
                                 this.newMaxUids[mailboxPath] = msg.uid;
                             }
 
+                            logger.debug({ mailboxPath, uid: msg.uid }, 'Processing message');
+
                             if (msg.envelope && msg.source) {
-                                yield await this.parseMessage(msg, mailboxPath);
+                                try {
+                                    yield await this.parseMessage(msg, mailboxPath);
+                                } catch (err: any) {
+                                    logger.error({ err, mailboxPath, uid: msg.uid }, 'Failed to parse message');
+                                    throw err;
+                                }
                             }
                         }
 
