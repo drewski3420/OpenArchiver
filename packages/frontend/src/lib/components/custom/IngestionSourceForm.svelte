@@ -76,12 +76,11 @@
 				method: 'POST',
 				body: uploadFormData
 			});
-
+			const result = await response.json();
 			if (!response.ok) {
-				throw new Error('File upload failed');
+				throw new Error(`File upload failed + ${result}`);
 			}
 
-			const result = await response.json();
 			formData.providerConfig.uploadedFilePath = result.filePath;
 			formData.providerConfig.uploadedFileName = file.name;
 			console.log(formData.providerConfig.uploadedFilePath);
@@ -91,7 +90,7 @@
 			setAlert({
 				type: 'error',
 				title: 'Upload Failed',
-				message: 'PST file upload failed. Please try again.',
+				message: 'PST file upload failed. Please try again.' + error.message,
 				duration: 5000,
 				show: true
 			});
