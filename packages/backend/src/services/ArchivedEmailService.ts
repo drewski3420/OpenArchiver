@@ -188,7 +188,7 @@ export class ArchivedEmailService {
         }
 
         const searchService = new SearchService();
-        await searchService.deleteDocumentsByFilter('emails', `id = ${emailId}`);
+        await searchService.deleteDocuments('emails', [emailId]);
 
         await db.delete(archivedEmails).where(eq(archivedEmails.id, emailId));
     }

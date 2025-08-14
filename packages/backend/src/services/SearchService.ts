@@ -33,6 +33,11 @@ export class SearchService {
         return index.search(query, options);
     }
 
+    public async deleteDocuments(indexName: string, ids: string[]) {
+        const index = await this.getIndex(indexName);
+        return index.deleteDocuments(ids);
+    }
+
     public async deleteDocumentsByFilter(indexName: string, filter: string | string[]) {
         const index = await this.getIndex(indexName);
         return index.deleteDocuments({ filter });
