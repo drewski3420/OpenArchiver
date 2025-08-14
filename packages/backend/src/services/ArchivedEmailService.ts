@@ -1,8 +1,14 @@
 import { count, desc, eq, asc, and } from 'drizzle-orm';
 import { db } from '../database';
 import { archivedEmails, attachments, emailAttachments } from '../database/schema';
-import type { PaginatedArchivedEmails, ArchivedEmail, Recipient, ThreadEmail } from '@open-archiver/types';
+import type {
+    PaginatedArchivedEmails,
+    ArchivedEmail,
+    Recipient,
+    ThreadEmail,
+} from '@open-archiver/types';
 import { StorageService } from './StorageService';
+import { SearchService } from './SearchService';
 import type { Readable } from 'stream';
 
 interface DbRecipients {
@@ -138,5 +144,52 @@ export class ArchivedEmailService {
         }
 
         return mappedEmail;
+    }
+
+    public static async deleteArchivedEmail(emailId: string): Promise<void> {
+        const [email] = await db
+            .select()
+            .from(archivedEmails)
+            .where(eq(archivedEmails.id, emailId));
+
+        if (!email) {
+            throw new Error('Archived email not found');
+        }
+
+        const storage = new StorageService();
+
+        // Load attachments before deleting the email
+        let emailAttachmentsResult: { attachmentId: string; storagePath: string }[] = [];
+        if (email.hasAttachments) {
+            emailAttachmentsResult = await db
+                .select({
+                    attachmentId: attachments.id,
+                    storagePath: attachments.storagePath,
+                })
+                .from(emailAttachments)
+                .innerJoin(attachments, eq(emailAttachments.attachmentId, attachments.id))
+                .where(eq(emailAttachments.emailId, emailId));
+        }
+
+        // Delete the email file from storage
+        await storage.delete(email.storagePath);
+
+        // Handle attachments: delete only if not referenced elsewhere
+        for (const attachment of emailAttachmentsResult) {
+            const [refCount] = await db
+                .select({ count: count(emailAttachments.emailId) })
+                .from(emailAttachments)
+                .where(eq(emailAttachments.attachmentId, attachment.attachmentId));
+
+            if (refCount.count === 1) {
+                await storage.delete(attachment.storagePath);
+                await db.delete(attachments).where(eq(attachments.id, attachment.attachmentId));
+            }
+        }
+
+        const searchService = new SearchService();
+        await searchService.deleteDocumentsByFilter('emails', `id = ${emailId}`);
+
+        await db.delete(archivedEmails).where(eq(archivedEmails.id, emailId));
     }
 }

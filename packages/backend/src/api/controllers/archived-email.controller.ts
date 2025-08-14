@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ArchivedEmailService } from '../../services/ArchivedEmailService';
+import { config } from '../../config';
 
 export class ArchivedEmailController {
     public getArchivedEmails = async (req: Request, res: Response): Promise<Response> => {
@@ -30,6 +31,25 @@ export class ArchivedEmailController {
             return res.status(200).json(email);
         } catch (error) {
             console.error(`Get archived email by id ${req.params.id} error:`, error);
+            return res.status(500).json({ message: 'An internal server error occurred' });
+        }
+    };
+
+    public deleteArchivedEmail = async (req: Request, res: Response): Promise<Response> => {
+        if (config.app.isDemo) {
+            return res
+                .status(403)
+                .json({ message: 'This operation is not allowed in demo mode.' });
+        }
+        try {
+            const { id } = req.params;
+            await ArchivedEmailService.deleteArchivedEmail(id);
+            return res.status(204).send();
+        } catch (error) {
+            console.error(`Delete archived email ${req.params.id} error:`, error);
+            if (error instanceof Error && error.message === 'Archived email not found') {
+                return res.status(404).json({ message: error.message });
+            }
             return res.status(500).json({ message: 'An internal server error occurred' });
         }
     };
