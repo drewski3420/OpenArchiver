@@ -48,9 +48,13 @@
                                 method: 'DELETE'
                         });
                         if (!response.ok) {
-                                throw new Error('Failed to delete email');
+                                const errorData = await response.json().catch(() => null);
+                                const message = errorData?.message || 'Failed to delete email';
+                                console.error('Delete failed:', message);
+                                alert(message);
+                                return;
                         }
-                        await goto('/dashboard/archived-emails');
+                        await goto('/dashboard/archived-emails', { invalidateAll: true });
                 } catch (error) {
                         console.error('Delete failed:', error);
                 } finally {

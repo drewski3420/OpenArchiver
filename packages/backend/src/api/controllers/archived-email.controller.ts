@@ -47,8 +47,11 @@ export class ArchivedEmailController {
             return res.status(204).send();
         } catch (error) {
             console.error(`Delete archived email ${req.params.id} error:`, error);
-            if (error instanceof Error && error.message === 'Archived email not found') {
-                return res.status(404).json({ message: error.message });
+            if (error instanceof Error) {
+                if (error.message === 'Archived email not found') {
+                    return res.status(404).json({ message: error.message });
+                }
+                return res.status(500).json({ message: error.message });
             }
             return res.status(500).json({ message: 'An internal server error occurred' });
         }

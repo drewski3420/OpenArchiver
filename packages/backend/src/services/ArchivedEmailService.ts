@@ -158,10 +158,9 @@ export class ArchivedEmailService {
 
         const storage = new StorageService();
 
-        // Load attachments before deleting the email
-        let emailAttachmentsResult: { attachmentId: string; storagePath: string }[] = [];
+        // Load and handle attachments before deleting the email itself
         if (email.hasAttachments) {
-            emailAttachmentsResult = await db
+            const emailAttachmentsResult = await db
                 .select({
                     attachmentId: attachments.id,
                     storagePath: attachments.storagePath,
@@ -169,23 +168,45 @@ export class ArchivedEmailService {
                 .from(emailAttachments)
                 .innerJoin(attachments, eq(emailAttachments.attachmentId, attachments.id))
                 .where(eq(emailAttachments.emailId, emailId));
+
+            try {
+                for (const attachment of emailAttachmentsResult) {
+                    const [refCount] = await db
+                        .select({ count: count(emailAttachments.emailId) })
+                        .from(emailAttachments)
+                        .where(eq(emailAttachments.attachmentId, attachment.attachmentId));
+
+                    if (refCount.count === 1) {
+                        await storage.delete(attachment.storagePath);
+                        await db
+                            .delete(emailAttachments)
+                            .where(
+                                and(
+                                    eq(emailAttachments.emailId, emailId),
+                                    eq(emailAttachments.attachmentId, attachment.attachmentId)
+                                )
+                            );
+                        await db
+                            .delete(attachments)
+                            .where(eq(attachments.id, attachment.attachmentId));
+                    } else {
+                        await db
+                            .delete(emailAttachments)
+                            .where(
+                                and(
+                                    eq(emailAttachments.emailId, emailId),
+                                    eq(emailAttachments.attachmentId, attachment.attachmentId)
+                                )
+                            );
+                    }
+                }
+            } catch {
+                throw new Error('Failed to delete email attachments');
+            }
         }
 
         // Delete the email file from storage
         await storage.delete(email.storagePath);
-
-        // Handle attachments: delete only if not referenced elsewhere
-        for (const attachment of emailAttachmentsResult) {
-            const [refCount] = await db
-                .select({ count: count(emailAttachments.emailId) })
-                .from(emailAttachments)
-                .where(eq(emailAttachments.attachmentId, attachment.attachmentId));
-
-            if (refCount.count === 1) {
-                await storage.delete(attachment.storagePath);
-                await db.delete(attachments).where(eq(attachments.id, attachment.attachmentId));
-            }
-        }
 
         const searchService = new SearchService();
         await searchService.deleteDocuments('emails', [emailId]);
