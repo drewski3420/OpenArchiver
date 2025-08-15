@@ -16,5 +16,7 @@ export const createArchivedEmailRouter = (
 
     router.get('/:id', archivedEmailController.getArchivedEmailById);
 
+    router.delete('/:id', archivedEmailController.deleteArchivedEmail);
+
     return router;
 };
