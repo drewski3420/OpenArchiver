@@ -8,15 +8,15 @@ A policy is a JSON object that consists of one or more statements. Each statemen
 
 ```json
 {
-    "Effect": "Allow",
-    "Action": ["archive:read", "archive:search"],
-    "Resource": ["archive/all"]
+	"Effect": "Allow",
+	"Action": ["archive:read", "archive:search"],
+	"Resource": ["archive/all"]
 }
 ```
 
--   **`Effect`**: Specifies whether the statement results in an `Allow` or `Deny`. An explicit `Deny` always overrides an `Allow`.
--   **`Action`**: A list of operations that the policy grants or denies permission to perform. Actions are formatted as `service:operation`.
--   **`Resource`**: A list of resources to which the actions apply. Resources are specified in a hierarchical format. Wildcards (`*`) can be used.
+- **`Effect`**: Specifies whether the statement results in an `Allow` or `Deny`. An explicit `Deny` always overrides an `Allow`.
+- **`Action`**: A list of operations that the policy grants or denies permission to perform. Actions are formatted as `service:operation`.
+- **`Resource`**: A list of resources to which the actions apply. Resources are specified in a hierarchical format. Wildcards (`*`) can be used.
 
 ## 2. Wildcard Support
 
@@ -26,11 +26,11 @@ Our IAM system supports wildcards (`*`) in both `Action` and `Resource` fields t
 
 You can use wildcards to grant broad permissions for actions:
 
--   **Global Wildcard (`*`)**: A standalone `*` in the `Action` field grants permission for all possible actions across all services.
+- **Global Wildcard (`*`)**: A standalone `*` in the `Action` field grants permission for all possible actions across all services.
     ```json
     "Action": ["*"]
     ```
--   **Service-Level Wildcard (`service:*`)**: A wildcard at the end of an action string grants permission for all actions within that specific service.
+- **Service-Level Wildcard (`service:*`)**: A wildcard at the end of an action string grants permission for all actions within that specific service.
     ```json
     "Action": ["archive:*"]
     ```
@@ -39,11 +39,11 @@ You can use wildcards to grant broad permissions for actions:
 
 Wildcards can also be used to specify resources:
 
--   **Global Wildcard (`*`)**: A standalone `*` in the `Resource` field applies the policy to all resources in the system.
+- **Global Wildcard (`*`)**: A standalone `*` in the `Resource` field applies the policy to all resources in the system.
     ```json
     "Resource": ["*"]
     ```
--   **Partial Wildcards**: Some services allow wildcards at specific points in the resource path to refer to all resources of a certain type. For example, to target all ingestion sources:
+- **Partial Wildcards**: Some services allow wildcards at specific points in the resource path to refer to all resources of a certain type. For example, to target all ingestion sources:
     ```json
     "Resource": ["ingestion-source/*"]
     ```

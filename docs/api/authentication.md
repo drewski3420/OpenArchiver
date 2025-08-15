@@ -22,12 +22,12 @@ Content-Type: application/json
 
 ```json
 {
-    "accessToken": "your.jwt.token",
-    "user": {
-        "id": "user-id",
-        "email": "user@example.com",
-        "role": "user"
-    }
+	"accessToken": "your.jwt.token",
+	"user": {
+		"id": "user-id",
+		"email": "user@example.com",
+		"role": "user"
+	}
 }
 ```
 

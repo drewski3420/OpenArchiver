@@ -13,7 +13,7 @@
 	import { Loader2 } from 'lucide-svelte';
 	let {
 		source = null,
-		onSubmit
+		onSubmit,
 	}: {
 		source?: IngestionSource | null;
 		onSubmit: (data: CreateIngestionSourceDto) => Promise<void>;
@@ -24,7 +24,7 @@
 		{ value: 'google_workspace', label: 'Google Workspace' },
 		{ value: 'microsoft_365', label: 'Microsoft 365' },
 		{ value: 'pst_import', label: 'PST Import' },
-		{ value: 'eml_import', label: 'EML Import' }
+		{ value: 'eml_import', label: 'EML Import' },
 	];
 
 	let formData: CreateIngestionSourceDto = $state({
@@ -32,8 +32,8 @@
 		provider: source?.provider ?? 'generic_imap',
 		providerConfig: source?.credentials ?? {
 			type: source?.provider ?? 'generic_imap',
-			secure: true
-		}
+			secure: true,
+		},
 	});
 
 	$effect(() => {
@@ -74,7 +74,7 @@
 		try {
 			const response = await api('/upload', {
 				method: 'POST',
-				body: uploadFormData
+				body: uploadFormData,
 			});
 			const result = await response.json();
 			if (!response.ok) {
@@ -92,7 +92,7 @@
 				title: 'Upload Failed, please try again',
 				message: JSON.stringify(error),
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		}
 	};
@@ -161,7 +161,12 @@
 		</div>
 		<div class="grid grid-cols-4 items-center gap-4">
 			<Label for="port" class="text-left">Port</Label>
-			<Input id="port" type="number" bind:value={formData.providerConfig.port} class="col-span-3" />
+			<Input
+				id="port"
+				type="number"
+				bind:value={formData.providerConfig.port}
+				class="col-span-3"
+			/>
 		</div>
 		<div class="grid grid-cols-4 items-center gap-4">
 			<Label for="username" class="text-left">Username</Label>
@@ -184,7 +189,13 @@
 		<div class="grid grid-cols-4 items-center gap-4">
 			<Label for="pst-file" class="text-left">PST File</Label>
 			<div class="col-span-3 flex flex-row items-center space-x-2">
-				<Input id="pst-file" type="file" class="" accept=".pst" onchange={handleFileChange} />
+				<Input
+					id="pst-file"
+					type="file"
+					class=""
+					accept=".pst"
+					onchange={handleFileChange}
+				/>
 				{#if fileUploading}
 					<span class=" text-primary animate-spin"><Loader2 /></span>
 				{/if}
@@ -194,7 +205,13 @@
 		<div class="grid grid-cols-4 items-center gap-4">
 			<Label for="eml-file" class="text-left">EML File</Label>
 			<div class="col-span-3 flex flex-row items-center space-x-2">
-				<Input id="eml-file" type="file" class="" accept=".zip" onchange={handleFileChange} />
+				<Input
+					id="eml-file"
+					type="file"
+					class=""
+					accept=".zip"
+					onchange={handleFileChange}
+				/>
 				{#if fileUploading}
 					<span class=" text-primary animate-spin"><Loader2 /></span>
 				{/if}
@@ -206,9 +223,9 @@
 			<Alert.Title>Heads up!</Alert.Title>
 			<Alert.Description>
 				<div class="my-1">
-					Please note that this is an organization-wide operation. This kind of ingestions will
-					import and index <b>all</b> email inboxes in your organization. If you want to import only
-					specific email inboxes, use the IMAP connector.
+					Please note that this is an organization-wide operation. This kind of ingestions
+					will import and index <b>all</b> email inboxes in your organization. If you want
+					to import only specific email inboxes, use the IMAP connector.
 				</div>
 			</Alert.Description>
 		</Alert.Root>

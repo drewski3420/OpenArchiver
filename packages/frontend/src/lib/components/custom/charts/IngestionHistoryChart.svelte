@@ -9,8 +9,8 @@
 	const chartConfig = {
 		count: {
 			label: 'Emails Ingested',
-			color: 'var(--chart-1)'
-		}
+			color: 'var(--chart-1)',
+		},
 	} satisfies ChartConfig;
 </script>
 
@@ -25,15 +25,15 @@
 		series={[
 			{
 				key: 'count',
-				...chartConfig.count
-			}
+				...chartConfig.count,
+			},
 		]}
 		cRange={[
 			'var(--color-chart-1)',
 			'var(--color-chart-2)',
 			'var(--color-chart-3)',
 			'var(--color-chart-4)',
-			'var(--color-chart-5)'
+			'var(--color-chart-5)',
 		]}
 		labels={{}}
 		props={{
@@ -41,10 +41,10 @@
 				format: (d) =>
 					new Date(d).toLocaleDateString('en-US', {
 						month: 'short',
-						day: 'numeric'
-					})
+						day: 'numeric',
+					}),
 			},
-			area: { curve: curveCatmullRom }
+			area: { curve: curveCatmullRom },
 		}}
 	>
 		{#snippet tooltip()}

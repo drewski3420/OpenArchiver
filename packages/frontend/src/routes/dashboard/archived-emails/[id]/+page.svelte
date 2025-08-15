@@ -2,21 +2,21 @@
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-        import EmailPreview from '$lib/components/custom/EmailPreview.svelte';
-        import EmailThread from '$lib/components/custom/EmailThread.svelte';
-        import { api } from '$lib/api.client';
-        import { browser } from '$app/environment';
-        import { formatBytes } from '$lib/utils';
-        import { goto } from '$app/navigation';
-        import * as Dialog from '$lib/components/ui/dialog';
+	import EmailPreview from '$lib/components/custom/EmailPreview.svelte';
+	import EmailThread from '$lib/components/custom/EmailThread.svelte';
+	import { api } from '$lib/api.client';
+	import { browser } from '$app/environment';
+	import { formatBytes } from '$lib/utils';
+	import { goto } from '$app/navigation';
+	import * as Dialog from '$lib/components/ui/dialog';
 
-        let { data }: { data: PageData } = $props();
-        let email = $derived(data.email);
-        let isDeleteDialogOpen = $state(false);
-        let isDeleting = $state(false);
+	let { data }: { data: PageData } = $props();
+	let email = $derived(data.email);
+	let isDeleteDialogOpen = $state(false);
+	let isDeleting = $state(false);
 
-        async function download(path: string, filename: string) {
-                if (!browser) return;
+	async function download(path: string, filename: string) {
+		if (!browser) return;
 
 		try {
 			const response = await api(`/storage/download?path=${encodeURIComponent(path)}`);
@@ -38,30 +38,30 @@
 			console.error('Download failed:', error);
 			// Optionally, show an error message to the user
 		}
-        }
+	}
 
-        async function confirmDelete() {
-                if (!email) return;
-                try {
-                        isDeleting = true;
-                        const response = await api(`/archived-emails/${email.id}`, {
-                                method: 'DELETE'
-                        });
-                        if (!response.ok) {
-                                const errorData = await response.json().catch(() => null);
-                                const message = errorData?.message || 'Failed to delete email';
-                                console.error('Delete failed:', message);
-                                alert(message);
-                                return;
-                        }
-                        await goto('/dashboard/archived-emails', { invalidateAll: true });
-                } catch (error) {
-                        console.error('Delete failed:', error);
-                } finally {
-                        isDeleting = false;
-                        isDeleteDialogOpen = false;
-                }
-        }
+	async function confirmDelete() {
+		if (!email) return;
+		try {
+			isDeleting = true;
+			const response = await api(`/archived-emails/${email.id}`, {
+				method: 'DELETE',
+			});
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => null);
+				const message = errorData?.message || 'Failed to delete email';
+				console.error('Delete failed:', message);
+				alert(message);
+				return;
+			}
+			await goto('/dashboard/archived-emails', { invalidateAll: true });
+		} catch (error) {
+			console.error('Delete failed:', error);
+		} finally {
+			isDeleting = false;
+			isDeleteDialogOpen = false;
+		}
+	}
 </script>
 
 {#if email}
@@ -81,7 +81,9 @@
 						<div class="space-y-1">
 							<h3 class="font-semibold">Recipients</h3>
 							<Card.Description>
-								<p>To: {email.recipients.map((r) => r.email || r.name).join(', ')}</p>
+								<p>
+									To: {email.recipients.map((r) => r.email || r.name).join(', ')}
+								</p>
 							</Card.Description>
 						</div>
 						<div class=" space-y-1">
@@ -99,7 +101,9 @@
 									<div class="flex flex-wrap items-center gap-2">
 										<span> Tags: </span>
 										{#each email.tags as tag}
-											<span class="  bg-muted truncate rounded p-1.5 text-xs">{tag}</span>
+											<span class="  bg-muted truncate rounded p-1.5 text-xs"
+												>{tag}</span
+											>
 										{/each}
 									</div>
 								{/if}
@@ -120,12 +124,20 @@
 								<h3 class="font-semibold">Attachments</h3>
 								<ul class="mt-2 space-y-2">
 									{#each email.attachments as attachment}
-										<li class="flex items-center justify-between rounded-md border p-2">
-											<span>{attachment.filename} ({attachment.sizeBytes} bytes)</span>
+										<li
+											class="flex items-center justify-between rounded-md border p-2"
+										>
+											<span
+												>{attachment.filename} ({attachment.sizeBytes} bytes)</span
+											>
 											<Button
 												variant="outline"
 												size="sm"
-												onclick={() => download(attachment.storagePath, attachment.filename)}
+												onclick={() =>
+													download(
+														attachment.storagePath,
+														attachment.filename
+													)}
 											>
 												Download
 											</Button>
@@ -139,22 +151,21 @@
 			</Card.Root>
 		</div>
 		<div class="col-span-3 space-y-6 md:col-span-1">
-                        <Card.Root>
-                                <Card.Header>
-                                        <Card.Title>Actions</Card.Title>
-                                </Card.Header>
-                                <Card.Content class="space-y-2">
-                                        <Button onclick={() => download(email.storagePath, `${email.subject || 'email'}.eml`)}
-                                                >Download Email (.eml)</Button
-                                        >
-                                        <Button
-                                                variant="destructive"
-                                                onclick={() => (isDeleteDialogOpen = true)}
-                                        >
-                                                Delete Email
-                                        </Button>
-                                </Card.Content>
-                        </Card.Root>
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>Actions</Card.Title>
+				</Card.Header>
+				<Card.Content class="space-y-2">
+					<Button
+						onclick={() =>
+							download(email.storagePath, `${email.subject || 'email'}.eml`)}
+						>Download Email (.eml)</Button
+					>
+					<Button variant="destructive" onclick={() => (isDeleteDialogOpen = true)}>
+						Delete Email
+					</Button>
+				</Card.Content>
+			</Card.Root>
 
 			{#if email.thread && email.thread.length > 1}
 				<Card.Root>
@@ -165,34 +176,34 @@
 						<EmailThread thread={email.thread} currentEmailId={email.id} />
 					</Card.Content>
 				</Card.Root>
-                        {/if}
-                </div>
-        </div>
+			{/if}
+		</div>
+	</div>
 
-        <Dialog.Root bind:open={isDeleteDialogOpen}>
-                <Dialog.Content class="sm:max-w-lg">
-                        <Dialog.Header>
-                                <Dialog.Title>Are you sure you want to delete this email?</Dialog.Title>
-                                <Dialog.Description>
-                                        This action cannot be undone and will permanently remove the email and its
-                                        attachments.
-                                </Dialog.Description>
-                        </Dialog.Header>
-                        <Dialog.Footer class="sm:justify-start">
-                                <Button
-                                        type="button"
-                                        variant="destructive"
-                                        onclick={confirmDelete}
-                                        disabled={isDeleting}
-                                >
-                                        {#if isDeleting}Deleting...{:else}Confirm{/if}
-                                </Button>
-                                <Dialog.Close>
-                                        <Button type="button" variant="secondary">Cancel</Button>
-                                </Dialog.Close>
-                        </Dialog.Footer>
-                </Dialog.Content>
-        </Dialog.Root>
+	<Dialog.Root bind:open={isDeleteDialogOpen}>
+		<Dialog.Content class="sm:max-w-lg">
+			<Dialog.Header>
+				<Dialog.Title>Are you sure you want to delete this email?</Dialog.Title>
+				<Dialog.Description>
+					This action cannot be undone and will permanently remove the email and its
+					attachments.
+				</Dialog.Description>
+			</Dialog.Header>
+			<Dialog.Footer class="sm:justify-start">
+				<Button
+					type="button"
+					variant="destructive"
+					onclick={confirmDelete}
+					disabled={isDeleting}
+				>
+					{#if isDeleting}Deleting...{:else}Confirm{/if}
+				</Button>
+				<Dialog.Close>
+					<Button type="button" variant="secondary">Cancel</Button>
+				</Dialog.Close>
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
 {:else}
-        <p>Email not found.</p>
+	<p>Email not found.</p>
 {/if}

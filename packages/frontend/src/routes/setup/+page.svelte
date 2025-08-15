@@ -19,7 +19,7 @@
 		try {
 			const response = await api('/auth/setup', {
 				method: 'POST',
-				body: JSON.stringify({ first_name, last_name, email, password })
+				body: JSON.stringify({ first_name, last_name, email, password }),
 			});
 
 			if (!response.ok) {
@@ -36,7 +36,7 @@
 				title: 'Setup Failed',
 				message: err.message,
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		} finally {
 			isLoading = false;
@@ -46,7 +46,10 @@
 
 <svelte:head>
 	<title>Setup - Open Archiver</title>
-	<meta name="description" content="Set up the initial administrator account for Open Archiver." />
+	<meta
+		name="description"
+		content="Set up the initial administrator account for Open Archiver."
+	/>
 </svelte:head>
 
 <div
@@ -65,7 +68,9 @@
 	<Card.Root class="w-full max-w-md">
 		<Card.Header class="space-y-1">
 			<Card.Title class="text-2xl">Welcome</Card.Title>
-			<Card.Description>Create the first administrator account to get started.</Card.Description>
+			<Card.Description
+				>Create the first administrator account to get started.</Card.Description
+			>
 		</Card.Header>
 		<Card.Content class="grid gap-4">
 			<form on:submit|preventDefault={handleSubmit} class="grid gap-4">
@@ -91,7 +96,13 @@
 				</div>
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
-					<Input id="email" type="email" placeholder="m@example.com" bind:value={email} required />
+					<Input
+						id="email"
+						type="email"
+						placeholder="m@example.com"
+						bind:value={email}
+						required
+					/>
 				</div>
 				<div class="grid gap-2">
 					<Label for="password">Password</Label>

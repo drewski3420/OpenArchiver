@@ -27,29 +27,27 @@ Retrieves a paginated list of archived emails for a specific ingestion source.
 
 #### Responses
 
--   **200 OK:** A paginated list of archived emails.
+- **200 OK:** A paginated list of archived emails.
 
     ```json
     {
-        "items": [
-            {
-                "id": "email-id",
-                "subject": "Test Email",
-                "from": "sender@example.com",
-                "sentAt": "2023-10-27T10:00:00.000Z",
-                "hasAttachments": true,
-                "recipients": [
-                    { "name": "Recipient 1", "email": "recipient1@example.com" }
-                ]
-            }
-        ],
-        "total": 100,
-        "page": 1,
-        "limit": 10
+    	"items": [
+    		{
+    			"id": "email-id",
+    			"subject": "Test Email",
+    			"from": "sender@example.com",
+    			"sentAt": "2023-10-27T10:00:00.000Z",
+    			"hasAttachments": true,
+    			"recipients": [{ "name": "Recipient 1", "email": "recipient1@example.com" }]
+    		}
+    	],
+    	"total": 100,
+    	"page": 1,
+    	"limit": 10
     }
     ```
 
--   **500 Internal Server Error:** An unexpected error occurred.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### GET /api/v1/archived-emails/:id
 
@@ -65,32 +63,30 @@ Retrieves a single archived email by its ID, including its raw content and attac
 
 #### Responses
 
--   **200 OK:** The archived email details.
+- **200 OK:** The archived email details.
 
     ```json
     {
-        "id": "email-id",
-        "subject": "Test Email",
-        "from": "sender@example.com",
-        "sentAt": "2023-10-27T10:00:00.000Z",
-        "hasAttachments": true,
-        "recipients": [
-            { "name": "Recipient 1", "email": "recipient1@example.com" }
-        ],
-        "raw": "...",
-        "attachments": [
-            {
-                "id": "attachment-id",
-                "filename": "document.pdf",
-                "mimeType": "application/pdf",
-                "sizeBytes": 12345
-            }
-        ]
+    	"id": "email-id",
+    	"subject": "Test Email",
+    	"from": "sender@example.com",
+    	"sentAt": "2023-10-27T10:00:00.000Z",
+    	"hasAttachments": true,
+    	"recipients": [{ "name": "Recipient 1", "email": "recipient1@example.com" }],
+    	"raw": "...",
+    	"attachments": [
+    		{
+    			"id": "attachment-id",
+    			"filename": "document.pdf",
+    			"mimeType": "application/pdf",
+    			"sizeBytes": 12345
+    		}
+    	]
     }
     ```
 
--   **404 Not Found:** The archived email with the specified ID was not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **404 Not Found:** The archived email with the specified ID was not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ## Service Methods
 
@@ -98,14 +94,14 @@ Retrieves a single archived email by its ID, including its raw content and attac
 
 Retrieves a paginated list of archived emails from the database for a given ingestion source.
 
--   **ingestionSourceId:** The ID of the ingestion source.
--   **page:** The page number for pagination.
--   **limit:** The number of items per page.
--   **Returns:** A promise that resolves to a `PaginatedArchivedEmails` object.
+- **ingestionSourceId:** The ID of the ingestion source.
+- **page:** The page number for pagination.
+- **limit:** The number of items per page.
+- **Returns:** A promise that resolves to a `PaginatedArchivedEmails` object.
 
 ### `getArchivedEmailById(emailId: string): Promise<ArchivedEmail | null>`
 
 Retrieves a single archived email by its ID, including its raw content and attachments.
 
--   **emailId:** The ID of the archived email.
--   **Returns:** A promise that resolves to an `ArchivedEmail` object or `null` if not found.
+- **emailId:** The ID of the archived email.
+- **Returns:** A promise that resolves to an `ArchivedEmail` object or `null` if not found.

@@ -9,7 +9,7 @@
 		{ href: '/dashboard', label: 'Dashboard' },
 		{ href: '/dashboard/ingestions', label: 'Ingestions' },
 		{ href: '/dashboard/archived-emails', label: 'Archived emails' },
-		{ href: '/dashboard/search', label: 'Search' }
+		{ href: '/dashboard/search', label: 'Search' },
 	];
 	let { children } = $props();
 	function handleLogout() {

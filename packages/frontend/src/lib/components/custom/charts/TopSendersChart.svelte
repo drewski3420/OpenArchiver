@@ -8,8 +8,8 @@
 
 	const chartConfig = {
 		count: {
-			label: 'Emails'
-		}
+			label: 'Emails',
+		},
 	} satisfies ChartConfig;
 </script>
 
@@ -25,15 +25,15 @@
 		series={[
 			{
 				key: 'count',
-				...chartConfig.count
-			}
+				...chartConfig.count,
+			},
 		]}
 		cRange={[
 			'var(--color-chart-1)',
 			'var(--color-chart-2)',
 			'var(--color-chart-3)',
 			'var(--color-chart-4)',
-			'var(--color-chart-5)'
+			'var(--color-chart-5)',
 		]}
 		labels={{}}
 	>

@@ -1,18 +1,18 @@
 {
-    "name": "@open-archiver/types",
-    "version": "0.1.0",
-    "private": true,
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch"
-    },
-    "devDependencies": {
-        "@types/node": "^24.0.13",
-        "typescript": "^5.0.0"
-    },
-    "dependencies": {
-        "jose": "^6.0.11"
-    }
+	"name": "@open-archiver/types",
+	"version": "0.1.0",
+	"private": true,
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch"
+	},
+	"devDependencies": {
+		"@types/node": "^24.0.13",
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"jose": "^6.0.11"
+	}
 }

@@ -13,7 +13,7 @@
 	const transformedHistory = $derived(
 		data.ingestionHistory?.history.map((item) => ({
 			...item,
-			date: new Date(item.date)
+			date: new Date(item.date),
 		})) ?? []
 	);
 </script>
@@ -44,16 +44,24 @@
 			{#if data.stats}
 				<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 					<Card.Root>
-						<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-							<Card.Title class="text-sm font-medium">Total Emails Archived</Card.Title>
+						<Card.Header
+							class="flex flex-row items-center justify-between space-y-0 pb-2"
+						>
+							<Card.Title class="text-sm font-medium"
+								>Total Emails Archived</Card.Title
+							>
 							<Archive class="text-muted-foreground h-4 w-4" />
 						</Card.Header>
 						<Card.Content>
-							<div class="text-primary text-2xl font-bold">{data.stats.totalEmailsArchived}</div>
+							<div class="text-primary text-2xl font-bold">
+								{data.stats.totalEmailsArchived}
+							</div>
 						</Card.Content>
 					</Card.Root>
 					<Card.Root>
-						<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
+						<Card.Header
+							class="flex flex-row items-center justify-between space-y-0 pb-2"
+						>
 							<Card.Title class="text-sm font-medium">Total Storage Used</Card.Title>
 							<HardDrive class="text-muted-foreground h-4 w-4" />
 						</Card.Header>
@@ -64,8 +72,12 @@
 						</Card.Content>
 					</Card.Root>
 					<Card.Root class="">
-						<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
-							<Card.Title class="text-sm font-medium">Failed Ingestions (Last 7 Days)</Card.Title>
+						<Card.Header
+							class="flex flex-row items-center justify-between space-y-0 pb-2"
+						>
+							<Card.Title class="text-sm font-medium"
+								>Failed Ingestions (Last 7 Days)</Card.Title
+							>
 							<CircleAlert class=" text-muted-foreground h-4 w-4" />
 						</Card.Header>
 						<Card.Content>

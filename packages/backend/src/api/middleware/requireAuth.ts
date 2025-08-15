@@ -5,35 +5,37 @@ import 'dotenv/config';
 // By using module augmentation, we can add our custom 'user' property
 // to the Express Request interface in a type-safe way.
 declare global {
-    namespace Express {
-        export interface Request {
-            user?: AuthTokenPayload;
-        }
-    }
+	namespace Express {
+		export interface Request {
+			user?: AuthTokenPayload;
+		}
+	}
 }
 
 export const requireAuth = (authService: AuthService) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'Unauthorized: No token provided' });
-        }
-        const token = authHeader.split(' ')[1];
-        try {
-            // use a SUPER_API_KEY for all authentications. add process.env.SUPER_API_KEY conditional check in case user didn't set a SUPER_API_KEY.
-            if (process.env.SUPER_API_KEY && token === process.env.SUPER_API_KEY) {
-                next();
-                return;
-            }
-            const payload = await authService.verifyToken(token);
-            if (!payload) {
-                return res.status(401).json({ message: 'Unauthorized: Invalid token' });
-            }
-            req.user = payload;
-            next();
-        } catch (error) {
-            console.error('Authentication error:', error);
-            return res.status(500).json({ message: 'An internal server error occurred during authentication' });
-        }
-    };
+	return async (req: Request, res: Response, next: NextFunction) => {
+		const authHeader = req.headers.authorization;
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			return res.status(401).json({ message: 'Unauthorized: No token provided' });
+		}
+		const token = authHeader.split(' ')[1];
+		try {
+			// use a SUPER_API_KEY for all authentications. add process.env.SUPER_API_KEY conditional check in case user didn't set a SUPER_API_KEY.
+			if (process.env.SUPER_API_KEY && token === process.env.SUPER_API_KEY) {
+				next();
+				return;
+			}
+			const payload = await authService.verifyToken(token);
+			if (!payload) {
+				return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+			}
+			req.user = payload;
+			next();
+		} catch (error) {
+			console.error('Authentication error:', error);
+			return res
+				.status(500)
+				.json({ message: 'An internal server error occurred during authentication' });
+		}
+	};
 };

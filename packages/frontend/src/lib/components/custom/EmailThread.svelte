@@ -5,7 +5,7 @@
 
 	let {
 		thread,
-		currentEmailId
+		currentEmailId,
 	}: {
 		thread: ArchivedEmail['thread'];
 		currentEmailId: string;
@@ -45,7 +45,7 @@
 									onclick={(e) => {
 										e.preventDefault();
 										goto(`/dashboard/archived-emails/${item.id}`, {
-											invalidateAll: true
+											invalidateAll: true,
 										});
 									}}>{item.subject || 'No Subject'}</a
 								>
@@ -53,7 +53,9 @@
 								{item.subject || 'No Subject'}
 							{/if}
 						</h4>
-						<div class="flex flex-col space-y-2 text-sm font-normal leading-none text-gray-400">
+						<div
+							class="flex flex-col space-y-2 text-sm font-normal leading-none text-gray-400"
+						>
 							<span>From: {item.senderEmail}</span>
 							<time class="">{new Date(item.sentAt).toLocaleString()}</time>
 						</div>

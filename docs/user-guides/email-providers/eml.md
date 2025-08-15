@@ -6,8 +6,8 @@ OpenArchiver allows you to import EML files from a zip archive. This is useful f
 
 To ensure a successful import, you should compress your .eml files to one zip file according to the following guidelines:
 
--   **Structure:** The zip file can contain any number of `.eml` files, organized in any folder structure. The folder structure will be preserved in OpenArchiver, so you can use it to organize your emails.
--   **Compression:** The zip file should be compressed using standard zip compression.
+- **Structure:** The zip file can contain any number of `.eml` files, organized in any folder structure. The folder structure will be preserved in OpenArchiver, so you can use it to organize your emails.
+- **Compression:** The zip file should be compressed using standard zip compression.
 
 Here's an example of a valid folder structure:
 

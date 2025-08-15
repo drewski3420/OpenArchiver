@@ -4,11 +4,11 @@ import { requireAuth } from '../middleware/requireAuth';
 import { AuthService } from '../../services/AuthService';
 
 export const createUploadRouter = (authService: AuthService): Router => {
-    const router = Router();
+	const router = Router();
 
-    router.use(requireAuth(authService));
+	router.use(requireAuth(authService));
 
-    router.post('/', uploadFile);
+	router.post('/', uploadFile);
 
-    return router;
+	return router;
 };

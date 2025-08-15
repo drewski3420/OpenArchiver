@@ -40,38 +40,37 @@ Password: openarchiver_demo
 
 ## ✨ Key Features
 
--   **Universal Ingestion**: Connect to any email provider to perform initial bulk imports and maintain continuous, real-time synchronization. Ingestion sources include:
+- **Universal Ingestion**: Connect to any email provider to perform initial bulk imports and maintain continuous, real-time synchronization. Ingestion sources include:
+    - IMAP connection
+    - Google Workspace
+    - Microsoft 365
+    - PST files
+    - Zipped .eml files
 
-    -   IMAP connection
-    -   Google Workspace
-    -   Microsoft 365
-    -   PST files
-    -   Zipped .eml files
-
--   **Secure & Efficient Storage**: Emails are stored in the standard `.eml` format. The system uses deduplication and compression to minimize storage costs. All data is encrypted at rest.
--   **Pluggable Storage Backends**: Support both local filesystem storage and S3-compatible object storage (like AWS S3 or MinIO).
--   **Powerful Search & eDiscovery**: A high-performance search engine indexes the full text of emails and attachments (PDF, DOCX, etc.).
--   **Thread discovery**: The ability to discover if an email belongs to a thread/conversation and present the context.
--   **Compliance & Retention**: Define granular retention policies to automatically manage the lifecycle of your data. Place legal holds on communications to prevent deletion during litigation (TBD).
--   **Comprehensive Auditing**: An immutable audit trail logs all system activities, ensuring you have a clear record of who accessed what and when (TBD).
+- **Secure & Efficient Storage**: Emails are stored in the standard `.eml` format. The system uses deduplication and compression to minimize storage costs. All data is encrypted at rest.
+- **Pluggable Storage Backends**: Support both local filesystem storage and S3-compatible object storage (like AWS S3 or MinIO).
+- **Powerful Search & eDiscovery**: A high-performance search engine indexes the full text of emails and attachments (PDF, DOCX, etc.).
+- **Thread discovery**: The ability to discover if an email belongs to a thread/conversation and present the context.
+- **Compliance & Retention**: Define granular retention policies to automatically manage the lifecycle of your data. Place legal holds on communications to prevent deletion during litigation (TBD).
+- **Comprehensive Auditing**: An immutable audit trail logs all system activities, ensuring you have a clear record of who accessed what and when (TBD).
 
 ## 🛠️ Tech Stack
 
 Open Archiver is built on a modern, scalable, and maintainable technology stack:
 
--   **Frontend**: SvelteKit with Svelte 5
--   **Backend**: Node.js with Express.js & TypeScript
--   **Job Queue**: BullMQ on Redis for robust, asynchronous processing. (We use Valkey as the Redis service in the Docker Compose deployment mode, but you can use Redis as well.)
--   **Search Engine**: Meilisearch for blazingly fast and resource-efficient search
--   **Database**: PostgreSQL for metadata, user management, and audit logs
--   **Deployment**: Docker Compose deployment
+- **Frontend**: SvelteKit with Svelte 5
+- **Backend**: Node.js with Express.js & TypeScript
+- **Job Queue**: BullMQ on Redis for robust, asynchronous processing. (We use Valkey as the Redis service in the Docker Compose deployment mode, but you can use Redis as well.)
+- **Search Engine**: Meilisearch for blazingly fast and resource-efficient search
+- **Database**: PostgreSQL for metadata, user management, and audit logs
+- **Deployment**: Docker Compose deployment
 
 ## 📦 Deployment
 
 ### Prerequisites
 
--   [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
--   A server or local machine with at least 4GB of RAM (2GB of RAM if you use external Postgres, Redis (Valkey) and Meilisearch instances).
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- A server or local machine with at least 4GB of RAM (2GB of RAM if you use external Postgres, Redis (Valkey) and Meilisearch instances).
 
 ### Installation
 
@@ -106,17 +105,17 @@ Open Archiver is built on a modern, scalable, and maintainable technology stack:
 
 After deploying the application, you will need to configure one or more ingestion sources to begin archiving emails. Follow our detailed guides to connect to your email provider:
 
--   [Connecting to Google Workspace](https://docs.openarchiver.com/user-guides/email-providers/google-workspace.html)
--   [Connecting to Microsoft 365](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
--   [Connecting to a Generic IMAP Server](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
+- [Connecting to Google Workspace](https://docs.openarchiver.com/user-guides/email-providers/google-workspace.html)
+- [Connecting to Microsoft 365](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
+- [Connecting to a Generic IMAP Server](https://docs.openarchiver.com/user-guides/email-providers/imap.html)
 
 ## 🤝 Contributing
 
 We welcome contributions from the community!
 
--   **Reporting Bugs**: If you find a bug, please open an issue on our GitHub repository.
--   **Suggesting Enhancements**: Have an idea for a new feature? We'd love to hear it. Open an issue to start the discussion.
--   **Code Contributions**: If you'd like to contribute code, please fork the repository and submit a pull request.
+- **Reporting Bugs**: If you find a bug, please open an issue on our GitHub repository.
+- **Suggesting Enhancements**: Have an idea for a new feature? We'd love to hear it. Open an issue to start the discussion.
+- **Code Contributions**: If you'd like to contribute code, please fork the repository and submit a pull request.
 
 Please read our `CONTRIBUTING.md` file for more details on our code of conduct and the process for submitting pull requests.
 

@@ -2,7 +2,6 @@ import type { RequestEvent } from '@sveltejs/kit';
 
 const BASE_URL = '/api/v1'; // Using a relative URL for proxying
 
-
 /**
  * A custom fetch wrapper for the server-side to automatically handle authentication headers.
  * @param url The URL to fetch, relative to the API base.
@@ -11,27 +10,27 @@ const BASE_URL = '/api/v1'; // Using a relative URL for proxying
  * @returns A Promise that resolves to the Fetch Response.
  */
 export const api = async (
-    url: string,
-    event: RequestEvent,
-    options: RequestInit = {}
+	url: string,
+	event: RequestEvent,
+	options: RequestInit = {}
 ): Promise<Response> => {
-    const accessToken = event.cookies.get('accessToken');
+	const accessToken = event.cookies.get('accessToken');
 
-    const defaultHeaders: HeadersInit = {
-        'Content-Type': 'application/json'
-    };
+	const defaultHeaders: HeadersInit = {
+		'Content-Type': 'application/json',
+	};
 
-    if (accessToken) {
-        defaultHeaders['Authorization'] = `Bearer ${accessToken}`;
-    }
+	if (accessToken) {
+		defaultHeaders['Authorization'] = `Bearer ${accessToken}`;
+	}
 
-    const mergedOptions: RequestInit = {
-        ...options,
-        headers: {
-            ...defaultHeaders,
-            ...options.headers
-        }
-    };
+	const mergedOptions: RequestInit = {
+		...options,
+		headers: {
+			...defaultHeaders,
+			...options.headers,
+		},
+	};
 
-    return event.fetch(`${BASE_URL}${url}`, mergedOptions);
+	return event.fetch(`${BASE_URL}${url}`, mergedOptions);
 };

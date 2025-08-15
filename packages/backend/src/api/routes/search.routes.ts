@@ -4,14 +4,14 @@ import { requireAuth } from '../middleware/requireAuth';
 import { AuthService } from '../../services/AuthService';
 
 export const createSearchRouter = (
-    searchController: SearchController,
-    authService: AuthService
+	searchController: SearchController,
+	authService: AuthService
 ): Router => {
-    const router = Router();
+	const router = Router();
 
-    router.use(requireAuth(authService));
+	router.use(requireAuth(authService));
 
-    router.get('/', searchController.search);
+	router.get('/', searchController.search);
 
-    return router;
+	return router;
 };

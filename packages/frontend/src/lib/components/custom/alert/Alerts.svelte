@@ -15,7 +15,7 @@
 		icon: 'heroicons-outline:check-circle',
 		color: 'text-green-800',
 		messageColor: 'text-green-700',
-		bgColor: 'text-green-50'
+		bgColor: 'text-green-50',
 	});
 	$effect(() => {
 		show;
@@ -30,21 +30,21 @@
 				icon: 'heroicons-outline:check-circle',
 				color: 'text-green-600',
 				messageColor: 'text-green-500',
-				bgColor: 'bg-green-50'
+				bgColor: 'bg-green-50',
 			};
 		} else if (type === 'error') {
 			styleConfig = {
 				icon: 'heroicons-outline:exclamation-circle',
 				color: 'text-yellow-600',
 				messageColor: 'text-yellow-600',
-				bgColor: 'bg-yellow-50'
+				bgColor: 'bg-yellow-50',
 			};
 		} else if (type === 'warning') {
 			styleConfig = {
 				icon: 'heroicons-outline:exclamation',
 				color: 'text-yellow-600',
 				messageColor: 'text-yellow-600',
-				bgColor: 'bg-yellow-50'
+				bgColor: 'bg-yellow-50',
 			};
 		}
 	});
@@ -59,7 +59,7 @@
 {#if show}
 	<div
 		aria-live="assertive"
-		class="pointer-events-none fixed inset-0 flex px-4 py-6 items-start sm:p-6 z-999999"
+		class="z-999999 pointer-events-none fixed inset-0 flex items-start px-4 py-6 sm:p-6"
 		in:fly={{ easing: bounceIn, x: 1000, duration: 500 }}
 		out:fade={{ duration: 100 }}
 		role="alert"

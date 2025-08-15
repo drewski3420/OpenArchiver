@@ -22,21 +22,16 @@ import { IamService } from './services/IamService';
 import { StorageService } from './services/StorageService';
 import { SearchService } from './services/SearchService';
 
-
-
 // Load environment variables
 dotenv.config();
 
 // --- Environment Variable Validation ---
-const {
-    PORT_BACKEND,
-    JWT_SECRET,
-    JWT_EXPIRES_IN
-} = process.env;
-
+const { PORT_BACKEND, JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
 if (!PORT_BACKEND || !JWT_SECRET || !JWT_EXPIRES_IN) {
-    throw new Error('Missing required environment variables for the backend: PORT_BACKEND, JWT_SECRET, JWT_EXPIRES_IN.');
+	throw new Error(
+		'Missing required environment variables for the backend: PORT_BACKEND, JWT_SECRET, JWT_EXPIRES_IN.'
+	);
 }
 
 // --- Dependency Injection Setup ---
@@ -83,30 +78,30 @@ app.use('/v1/test', testRouter);
 
 // Example of a protected route
 app.get('/v1/protected', requireAuth(authService), (req, res) => {
-    res.json({
-        message: 'You have accessed a protected route!',
-        user: req.user // The user payload is attached by the requireAuth middleware
-    });
+	res.json({
+		message: 'You have accessed a protected route!',
+		user: req.user, // The user payload is attached by the requireAuth middleware
+	});
 });
 
-app.get("/", (req, res) => {
-    res.send('Backend is running!');
+app.get('/', (req, res) => {
+	res.send('Backend is running!');
 });
 
 // --- Server Start ---
 const startServer = async () => {
-    try {
-        // Configure the Meilisearch index on startup
-        console.log('Configuring email index...');
-        await searchService.configureEmailIndex();
+	try {
+		// Configure the Meilisearch index on startup
+		console.log('Configuring email index...');
+		await searchService.configureEmailIndex();
 
-        app.listen(PORT_BACKEND, () => {
-            console.log(`Backend listening at http://localhost:${PORT_BACKEND}`);
-        });
-    } catch (error) {
-        console.error('Failed to start the server:', error);
-        process.exit(1);
-    }
+		app.listen(PORT_BACKEND, () => {
+			console.log(`Backend listening at http://localhost:${PORT_BACKEND}`);
+		});
+	} catch (error) {
+		console.error('Failed to start the server:', error);
+		process.exit(1);
+	}
 };
 
 startServer();

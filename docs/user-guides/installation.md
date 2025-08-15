@@ -4,9 +4,9 @@ This guide will walk you through setting up Open Archiver using Docker Compose. 
 
 ## Prerequisites
 
--   [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your server or local machine.
--   A server or local machine with at least 4GB of RAM (2GB of RAM if you use external Postgres, Redis (Valkey) and Meilisearch instances).
--   [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed on your server or local machine.
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your server or local machine.
+- A server or local machine with at least 4GB of RAM (2GB of RAM if you use external Postgres, Redis (Valkey) and Meilisearch instances).
+- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed on your server or local machine.
 
 ## 1. Clone the Repository
 
@@ -33,11 +33,11 @@ Now, open the `.env` file in a text editor and customize the settings.
 
 You must change the following placeholder values to secure your instance:
 
--   `POSTGRES_PASSWORD`: A strong, unique password for the database.
--   `REDIS_PASSWORD`: A strong, unique password for the Valkey/Redis service.
--   `MEILI_MASTER_KEY`: A complex key for Meilisearch.
--   `JWT_SECRET`: A long, random string for signing authentication tokens.
--   `ENCRYPTION_KEY`: A 32-byte hex string for encrypting sensitive data in the database. You can generate one with the following command:
+- `POSTGRES_PASSWORD`: A strong, unique password for the database.
+- `REDIS_PASSWORD`: A strong, unique password for the Valkey/Redis service.
+- `MEILI_MASTER_KEY`: A complex key for Meilisearch.
+- `JWT_SECRET`: A long, random string for signing authentication tokens.
+- `ENCRYPTION_KEY`: A 32-byte hex string for encrypting sensitive data in the database. You can generate one with the following command:
     ```bash
     openssl rand -hex 32
     ```
@@ -122,9 +122,9 @@ docker compose up -d
 
 This command will:
 
--   Pull the required Docker images for the frontend, backend, database, and other services.
--   Create and start the containers in the background (`-d` flag).
--   Create the persistent volumes for your data.
+- Pull the required Docker images for the frontend, backend, database, and other services.
+- Create and start the containers in the background (`-d` flag).
+- Create the persistent volumes for your data.
 
 You can check the status of the running containers with:
 
@@ -142,9 +142,9 @@ You can log in with the `ADMIN_EMAIL` and `ADMIN_PASSWORD` you configured in you
 
 After successfully deploying and logging into Open Archiver, the next step is to configure your ingestion sources to start archiving emails.
 
--   [Connecting to Google Workspace](./email-providers/google-workspace.md)
--   [Connecting to Microsoft 365](./email-providers/microsoft-365.md)
--   [Connecting to a Generic IMAP Server](./email-providers/imap.md)
+- [Connecting to Google Workspace](./email-providers/google-workspace.md)
+- [Connecting to Microsoft 365](./email-providers/microsoft-365.md)
+- [Connecting to a Generic IMAP Server](./email-providers/imap.md)
 
 ## Updating Your Installation
 
@@ -174,9 +174,8 @@ To do this, you will need to make a small modification to your `docker-compose.y
 2.  **Remove all `networks` sections** from the file. This includes the network configuration for each service and the top-level network definition.
 
     Specifically, you need to remove:
-
-    -   The `networks: - open-archiver-net` lines from the `open-archiver`, `postgres`, `valkey`, and `meilisearch` services.
-    -   The entire `networks:` block at the end of the file.
+    - The `networks: - open-archiver-net` lines from the `open-archiver`, `postgres`, `valkey`, and `meilisearch` services.
+    - The entire `networks:` block at the end of the file.
 
     Here is an example of what to remove from a service:
 

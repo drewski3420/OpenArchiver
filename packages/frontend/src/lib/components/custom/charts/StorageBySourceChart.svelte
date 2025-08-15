@@ -8,8 +8,8 @@
 
 	const chartConfig = {
 		storageUsed: {
-			label: 'Storage Used'
-		}
+			label: 'Storage Used',
+		},
 	} satisfies ChartConfig;
 </script>
 
@@ -25,7 +25,7 @@
 			'var(--color-chart-2)',
 			'var(--color-chart-3)',
 			'var(--color-chart-4)',
-			'var(--color-chart-5)'
+			'var(--color-chart-5)',
 		]}
 	>
 		{#snippet tooltip()}

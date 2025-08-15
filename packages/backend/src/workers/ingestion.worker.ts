@@ -7,32 +7,31 @@ import { processMailboxProcessor } from '../jobs/processors/process-mailbox.proc
 import syncCycleFinishedProcessor from '../jobs/processors/sync-cycle-finished.processor';
 
 const processor = async (job: any) => {
-    switch (job.name) {
-        case 'initial-import':
-            return initialImportProcessor(job);
-        case 'sync-cycle-finished':
-            return syncCycleFinishedProcessor(job);
-        case 'continuous-sync':
-            return continuousSyncProcessor(job);
-        case 'schedule-continuous-sync':
-            return scheduleContinuousSyncProcessor(job);
-        case 'process-mailbox':
-            return processMailboxProcessor(job);
-        default:
-            throw new Error(`Unknown job name: ${job.name}`);
-    }
+	switch (job.name) {
+		case 'initial-import':
+			return initialImportProcessor(job);
+		case 'sync-cycle-finished':
+			return syncCycleFinishedProcessor(job);
+		case 'continuous-sync':
+			return continuousSyncProcessor(job);
+		case 'schedule-continuous-sync':
+			return scheduleContinuousSyncProcessor(job);
+		case 'process-mailbox':
+			return processMailboxProcessor(job);
+		default:
+			throw new Error(`Unknown job name: ${job.name}`);
+	}
 };
 
 const worker = new Worker('ingestion', processor, {
-    connection,
-    removeOnComplete: {
-        count: 100, // keep last 100 jobs
-    },
-    removeOnFail: {
-        count: 500, // keep last 500 failed jobs
-    },
+	connection,
+	removeOnComplete: {
+		count: 100, // keep last 100 jobs
+	},
+	removeOnFail: {
+		count: 500, // keep last 500 failed jobs
+	},
 });
-
 
 console.log('Ingestion worker started');
 
