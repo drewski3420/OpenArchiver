@@ -89,7 +89,7 @@ app.get('/v1/protected', requireAuth(authService), (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.send('Backend is running!');
 });
 

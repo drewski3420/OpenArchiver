@@ -7,7 +7,7 @@ pnpm-lock.yaml
 meili_data/
 
 ## shadcn installs
-components/ui/
+packages/frontend/src/lib/components/ui/
 
 # Ignore logs
 *.log
