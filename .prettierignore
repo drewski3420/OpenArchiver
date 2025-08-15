@@ -1,0 +1,13 @@
+# Ignore artifacts
+dist
+.svelte-kit
+build
+node_modules
+pnpm-lock.yaml
+meili_data/
+
+## shadcn installs
+components/ui/
+
+# Ignore logs
+*.log

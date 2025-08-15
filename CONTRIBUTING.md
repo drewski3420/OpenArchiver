@@ -6,8 +6,8 @@ First off, thank you for considering contributing to Open Archiver! It's people 
 
 Not sure where to start? You can:
 
--   Look through the [open issues](https://github.com/LogicLabs-OU/OpenArchiver/issues) for bugs or feature requests.
--   Check the issues labeled `good first issue` for tasks that are a good entry point into the codebase.
+- Look through the [open issues](https://github.com/LogicLabs-OU/OpenArchiver/issues) for bugs or feature requests.
+- Check the issues labeled `good first issue` for tasks that are a good entry point into the codebase.
 
 ## How to Contribute
 
@@ -41,13 +41,13 @@ This project and everyone participating in it is governed by the [Open Archiver 
 
 ### Git Commit Messages
 
--   Use the present tense ("Add feature" not "Added feature").
--   Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
--   Limit the first line to 72 characters or less.
--   Reference issues and pull requests liberally after the first line.
+- Use the present tense ("Add feature" not "Added feature").
+- Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
+- Limit the first line to 72 characters or less.
+- Reference issues and pull requests liberally after the first line.
 
 ### TypeScript Styleguide
 
--   Follow the existing code style.
--   Use TypeScript's strict mode.
--   Avoid using `any` as a type. Define clear interfaces and types in the `packages/types` directory.
+- Follow the existing code style.
+- Use TypeScript's strict mode.
+- Avoid using `any` as a type. Define clear interfaces and types in the `packages/types` directory.
