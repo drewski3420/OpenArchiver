@@ -21,70 +21,66 @@
 // ===================================================================================
 
 const ARCHIVE_ACTIONS = {
-    READ: 'archive:read',
-    SEARCH: 'archive:search',
-    EXPORT: 'archive:export',
+	READ: 'archive:read',
+	SEARCH: 'archive:search',
+	EXPORT: 'archive:export',
 } as const;
 
 const ARCHIVE_RESOURCES = {
-    ALL: 'archive/all',
-    INGESTION_SOURCE: 'archive/ingestion-source/*',
-    MAILBOX: 'archive/mailbox/*',
-    CUSTODIAN: 'archive/custodian/*',
+	ALL: 'archive/all',
+	INGESTION_SOURCE: 'archive/ingestion-source/*',
+	MAILBOX: 'archive/mailbox/*',
+	CUSTODIAN: 'archive/custodian/*',
 } as const;
-
 
 // ===================================================================================
 // SERVICE: ingestion
 // ===================================================================================
 
 const INGESTION_ACTIONS = {
-    CREATE_SOURCE: 'ingestion:createSource',
-    READ_SOURCE: 'ingestion:readSource',
-    UPDATE_SOURCE: 'ingestion:updateSource',
-    DELETE_SOURCE: 'ingestion:deleteSource',
-    MANAGE_SYNC: 'ingestion:manageSync', // Covers triggering, pausing, and forcing syncs
+	CREATE_SOURCE: 'ingestion:createSource',
+	READ_SOURCE: 'ingestion:readSource',
+	UPDATE_SOURCE: 'ingestion:updateSource',
+	DELETE_SOURCE: 'ingestion:deleteSource',
+	MANAGE_SYNC: 'ingestion:manageSync', // Covers triggering, pausing, and forcing syncs
 } as const;
 
 const INGESTION_RESOURCES = {
-    ALL: 'ingestion-source/*',
-    SOURCE: 'ingestion-source/{sourceId}',
+	ALL: 'ingestion-source/*',
+	SOURCE: 'ingestion-source/{sourceId}',
 } as const;
-
 
 // ===================================================================================
 // SERVICE: system
 // ===================================================================================
 
 const SYSTEM_ACTIONS = {
-    READ_SETTINGS: 'system:readSettings',
-    UPDATE_SETTINGS: 'system:updateSettings',
-    READ_USERS: 'system:readUsers',
-    CREATE_USER: 'system:createUser',
-    UPDATE_USER: 'system:updateUser',
-    DELETE_USER: 'system:deleteUser',
-    ASSIGN_ROLE: 'system:assignRole',
+	READ_SETTINGS: 'system:readSettings',
+	UPDATE_SETTINGS: 'system:updateSettings',
+	READ_USERS: 'system:readUsers',
+	CREATE_USER: 'system:createUser',
+	UPDATE_USER: 'system:updateUser',
+	DELETE_USER: 'system:deleteUser',
+	ASSIGN_ROLE: 'system:assignRole',
 } as const;
 
 const SYSTEM_RESOURCES = {
-    SETTINGS: 'system/settings',
-    USERS: 'system/users',
-    USER: 'system/user/{userId}',
+	SETTINGS: 'system/settings',
+	USERS: 'system/users',
+	USER: 'system/user/{userId}',
 } as const;
-
 
 // ===================================================================================
 // SERVICE: dashboard
 // ===================================================================================
 
 const DASHBOARD_ACTIONS = {
-    READ: 'dashboard:read',
+	READ: 'dashboard:read',
 } as const;
 
 const DASHBOARD_RESOURCES = {
-    ALL: 'dashboard/*',
+	ALL: 'dashboard/*',
 } as const;
-
 
 // ===================================================================================
 // EXPORTED DEFINITIONS
@@ -95,10 +91,10 @@ const DASHBOARD_RESOURCES = {
  * This is used by the policy validator to ensure that any action in a policy is recognized.
  */
 export const ValidActions: Set<string> = new Set([
-    ...Object.values(ARCHIVE_ACTIONS),
-    ...Object.values(INGESTION_ACTIONS),
-    ...Object.values(SYSTEM_ACTIONS),
-    ...Object.values(DASHBOARD_ACTIONS),
+	...Object.values(ARCHIVE_ACTIONS),
+	...Object.values(INGESTION_ACTIONS),
+	...Object.values(SYSTEM_ACTIONS),
+	...Object.values(DASHBOARD_ACTIONS),
 ]);
 
 /**
@@ -113,8 +109,8 @@ export const ValidActions: Set<string> = new Set([
  *   as is `archive/email/123-abc`.
  */
 export const ValidResourcePatterns = {
-    archive: /^archive\/(all|ingestion-source\/[^\/]+|mailbox\/[^\/]+|custodian\/[^\/]+)$/,
-    ingestion: /^ingestion-source\/(\*|[^\/]+)$/,
-    system: /^system\/(settings|users|user\/[^\/]+)$/,
-    dashboard: /^dashboard\/\*$/,
+	archive: /^archive\/(all|ingestion-source\/[^\/]+|mailbox\/[^\/]+|custodian\/[^\/]+)$/,
+	ingestion: /^ingestion-source\/(\*|[^\/]+)$/,
+	system: /^system\/(settings|users|user\/[^\/]+)$/,
+	dashboard: /^dashboard\/\*$/,
 };

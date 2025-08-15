@@ -4,8 +4,8 @@ Open Archiver can connect to a variety of email sources to ingest and archive yo
 
 Choose your provider from the list below to get started:
 
--   [Google Workspace](./google-workspace.md)
--   [Microsoft 365](./microsoft-365.md)
--   [Generic IMAP Server](./imap.md)
--   [EML Import](./eml.md)
--   [PST Import](./pst.md)
+- [Google Workspace](./google-workspace.md)
+- [Microsoft 365](./microsoft-365.md)
+- [Generic IMAP Server](./imap.md)
+- [EML Import](./eml.md)
+- [PST Import](./pst.md)

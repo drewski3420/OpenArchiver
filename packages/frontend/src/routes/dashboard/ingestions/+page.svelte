@@ -36,7 +36,7 @@
 				title: 'Demo mode',
 				message: 'Editing is not allowed in demo mode.',
 				duration: 5000,
-				show: true
+				show: true,
 			});
 			return;
 		}
@@ -61,7 +61,7 @@
 					title: 'Failed to delete ingestion',
 					message: errorBody.message || JSON.stringify(errorBody),
 					duration: 5000,
-					show: true
+					show: true,
 				});
 				return;
 			}
@@ -82,7 +82,7 @@
 				title: 'Failed to trigger force sync ingestion',
 				message: errorBody.message || JSON.stringify(errorBody),
 				duration: 5000,
-				show: true
+				show: true,
 			});
 			return;
 		}
@@ -107,7 +107,7 @@
 			} else {
 				await api(`/ingestion-sources/${source.id}`, {
 					method: 'PUT',
-					body: JSON.stringify({ status: 'active' })
+					body: JSON.stringify({ status: 'active' }),
 				});
 			}
 
@@ -123,7 +123,7 @@
 				title: 'Failed to trigger force sync ingestion',
 				message: e instanceof Error ? e.message : JSON.stringify(e),
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		}
 	};
@@ -140,7 +140,7 @@
 						title: `Failed to delete ingestion ${id}`,
 						message: errorBody.message || JSON.stringify(errorBody),
 						duration: 5000,
-						show: true
+						show: true,
 					});
 				}
 			}
@@ -163,7 +163,7 @@
 						title: `Failed to trigger force sync for ingestion ${id}`,
 						message: errorBody.message || JSON.stringify(errorBody),
 						duration: 5000,
-						show: true
+						show: true,
 					});
 				}
 			}
@@ -181,7 +181,7 @@
 				title: 'Failed to trigger force sync',
 				message: e instanceof Error ? e.message : JSON.stringify(e),
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		}
 	};
@@ -192,7 +192,7 @@
 				// Update
 				const response = await api(`/ingestion-sources/${selectedSource.id}`, {
 					method: 'PUT',
-					body: JSON.stringify(formData)
+					body: JSON.stringify(formData),
 				});
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -206,7 +206,7 @@
 				// Create
 				const response = await api('/ingestion-sources', {
 					method: 'POST',
-					body: JSON.stringify(formData)
+					body: JSON.stringify(formData),
 				});
 				if (!response.ok) {
 					const errorData = await response.json();
@@ -226,7 +226,7 @@
 				title: 'Authentication Failed',
 				message,
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		}
 	};
@@ -276,7 +276,10 @@
 							<RefreshCw class="mr-2 h-4 w-4" />
 							Force Sync
 						</DropdownMenu.Item>
-						<DropdownMenu.Item class="text-red-600" onclick={() => (isBulkDeleteDialogOpen = true)}>
+						<DropdownMenu.Item
+							class="text-red-600"
+							onclick={() => (isBulkDeleteDialogOpen = true)}
+						>
 							<Trash class="mr-2 h-4 w-4" />
 							Delete
 						</DropdownMenu.Item>
@@ -300,7 +303,8 @@
 									selectedIds = [];
 								}
 							}}
-							checked={ingestionSources.length > 0 && selectedIds.length === ingestionSources.length
+							checked={ingestionSources.length > 0 &&
+							selectedIds.length === ingestionSources.length
 								? true
 								: ((selectedIds.length > 0 ? 'indeterminate' : false) as any)}
 						/>
@@ -322,7 +326,9 @@
 									checked={selectedIds.includes(source.id)}
 									onCheckedChange={() => {
 										if (selectedIds.includes(source.id)) {
-											selectedIds = selectedIds.filter((id) => id !== source.id);
+											selectedIds = selectedIds.filter(
+												(id) => id !== source.id
+											);
 										} else {
 											selectedIds = [...selectedIds, source.id];
 										}
@@ -330,15 +336,23 @@
 								/>
 							</Table.Cell>
 							<Table.Cell>
-								<a class="link" href="/dashboard/archived-emails?ingestionSourceId={source.id}"
+								<a
+									class="link"
+									href="/dashboard/archived-emails?ingestionSourceId={source.id}"
 									>{source.name}</a
 								>
 							</Table.Cell>
-							<Table.Cell class="capitalize">{source.provider.split('_').join(' ')}</Table.Cell>
+							<Table.Cell class="capitalize"
+								>{source.provider.split('_').join(' ')}</Table.Cell
+							>
 							<Table.Cell class="min-w-24">
 								<HoverCard.Root>
 									<HoverCard.Trigger>
-										<Badge class="{getStatusClasses(source.status)} cursor-pointer capitalize">
+										<Badge
+											class="{getStatusClasses(
+												source.status
+											)} cursor-pointer capitalize"
+										>
 											{source.status.split('_').join(' ')}
 										</Badge>
 									</HoverCard.Trigger>
@@ -358,10 +372,13 @@
 									class="cursor-pointer"
 									checked={source.status !== 'paused'}
 									onCheckedChange={() => handleToggle(source)}
-									disabled={source.status === 'importing' || source.status === 'syncing'}
+									disabled={source.status === 'importing' ||
+										source.status === 'syncing'}
 								/>
 							</Table.Cell>
-							<Table.Cell>{new Date(source.createdAt).toLocaleDateString()}</Table.Cell>
+							<Table.Cell
+								>{new Date(source.createdAt).toLocaleDateString()}</Table.Cell
+							>
 							<Table.Cell class="text-right">
 								<DropdownMenu.Root>
 									<DropdownMenu.Trigger>
@@ -379,7 +396,9 @@
 											>Force sync</DropdownMenu.Item
 										>
 										<DropdownMenu.Separator />
-										<DropdownMenu.Item class="text-red-600" onclick={() => openDeleteDialog(source)}
+										<DropdownMenu.Item
+											class="text-red-600"
+											onclick={() => openDeleteDialog(source)}
 											>Delete</DropdownMenu.Item
 										>
 									</DropdownMenu.Content>
@@ -409,7 +428,8 @@
 					>Read <a
 						class="text-primary underline underline-offset-2"
 						target="_blank"
-						href="https://docs.openarchiver.com/user-guides/email-providers/">docs here</a
+						href="https://docs.openarchiver.com/user-guides/email-providers/"
+						>docs here</a
 					>.</span
 				>
 			</Dialog.Description>
@@ -423,12 +443,17 @@
 		<Dialog.Header>
 			<Dialog.Title>Are you sure you want to delete this ingestion?</Dialog.Title>
 			<Dialog.Description>
-				This will delete all archived emails, attachments, indexing, and files associated with this
-				ingestion. If you only want to stop syncing new emails, you can pause the ingestion instead.
+				This will delete all archived emails, attachments, indexing, and files associated
+				with this ingestion. If you only want to stop syncing new emails, you can pause the
+				ingestion instead.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer class="sm:justify-start">
-			<Button type="button" variant="destructive" onclick={confirmDelete} disabled={isDeleting}
+			<Button
+				type="button"
+				variant="destructive"
+				onclick={confirmDelete}
+				disabled={isDeleting}
 				>{#if isDeleting}Deleting...{:else}Confirm{/if}</Button
 			>
 			<Dialog.Close>
@@ -445,13 +470,17 @@
 				>Are you sure you want to delete {selectedIds.length} selected ingestions?</Dialog.Title
 			>
 			<Dialog.Description>
-				This will delete all archived emails, attachments, indexing, and files associated with these
-				ingestions. If you only want to stop syncing new emails, you can pause the ingestions
-				instead.
+				This will delete all archived emails, attachments, indexing, and files associated
+				with these ingestions. If you only want to stop syncing new emails, you can pause
+				the ingestions instead.
 			</Dialog.Description>
 		</Dialog.Header>
 		<Dialog.Footer class="sm:justify-start">
-			<Button type="button" variant="destructive" onclick={handleBulkDelete} disabled={isDeleting}
+			<Button
+				type="button"
+				variant="destructive"
+				onclick={handleBulkDelete}
+				disabled={isDeleting}
 				>{#if isDeleting}Deleting...{:else}Confirm{/if}</Button
 			>
 			<Dialog.Close>

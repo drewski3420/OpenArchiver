@@ -10,9 +10,9 @@ Before making requests to protected endpoints, you must authenticate with the AP
 
 ## API Services
 
--   [**Auth Service**](./auth.md): Handles user authentication.
--   [**Archived Email Service**](./archived-email.md): Manages archived emails.
--   [**Dashboard Service**](./dashboard.md): Provides data for the main dashboard.
--   [**Ingestion Service**](./ingestion.md): Manages email ingestion sources.
--   [**Search Service**](./search.md): Handles email search functionality.
--   [**Storage Service**](./storage.md): Manages file storage and downloads.
+- [**Auth Service**](./auth.md): Handles user authentication.
+- [**Archived Email Service**](./archived-email.md): Manages archived emails.
+- [**Dashboard Service**](./dashboard.md): Provides data for the main dashboard.
+- [**Ingestion Service**](./ingestion.md): Manages email ingestion sources.
+- [**Search Service**](./search.md): Handles email search functionality.
+- [**Storage Service**](./storage.md): Manages file storage and downloads.

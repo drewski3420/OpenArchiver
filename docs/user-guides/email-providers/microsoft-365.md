@@ -6,7 +6,7 @@ The connection uses the **Microsoft Graph API** and an **App Registration** in M
 
 ## Prerequisites
 
--   You must have one of the following administrator roles in your Microsoft 365 tenant: **Global Administrator**, **Application Administrator**, or **Cloud Application Administrator**.
+- You must have one of the following administrator roles in your Microsoft 365 tenant: **Global Administrator**, **Application Administrator**, or **Cloud Application Administrator**.
 
 ## Setup Overview
 
@@ -27,9 +27,9 @@ First, you will create an "App registration," which acts as an identity for the 
 2.  In the left-hand navigation pane, go to **Identity > Applications > App registrations**.
 3.  Click the **+ New registration** button at the top of the page.
 4.  On the "Register an application" screen:
-    -   **Name:** Give the application a descriptive name you will recognize, such as `OpenArchiver Service`.
-    -   **Supported account types:** Select **"Accounts in this organizational directory only (Default Directory only - Single tenant)"**. This is the most secure option.
-    -   **Redirect URI (optional):** You can leave this blank.
+    - **Name:** Give the application a descriptive name you will recognize, such as `OpenArchiver Service`.
+    - **Supported account types:** Select **"Accounts in this organizational directory only (Default Directory only - Single tenant)"**. This is the most secure option.
+    - **Redirect URI (optional):** You can leave this blank.
 5.  Click the **Register** button. You will be taken to the application's main "Overview" page.
 
 ---
@@ -43,8 +43,8 @@ Next, you must grant the application the specific permissions required to read u
 3.  In the "Request API permissions" pane, select **Microsoft Graph**.
 4.  Select **Application permissions**. This is critical as it allows the service to run in the background without a user being signed in.
 5.  In the "Select permissions" search box, find and check the boxes for the following two permissions:
-    -   `Mail.Read`
-    -   `User.Read.All`
+    - `Mail.Read`
+    - `User.Read.All`
 6.  Click the **Add permissions** button at the bottom.
 7.  **Crucial Final Step:** You will now see the permissions in your list with a warning status. You must grant consent on behalf of your organization. Click the **"Grant admin consent for [Your Organization's Name]"** button located above the permissions table. Click **Yes** in the confirmation dialog. The status for both permissions should now show a green checkmark.
 
@@ -57,8 +57,8 @@ The client secret is a password that the archiving service will use to authentic
 1.  In your application's menu, navigate to **Certificates & secrets**.
 2.  Select the **Client secrets** tab and click **+ New client secret**.
 3.  In the pane that appears:
-    -   **Description:** Enter a clear description, such as `OpenArchiver Key`.
-    -   **Expires:** Select an expiry duration. We recommend **12 or 24 months**. Set a calendar reminder to renew it before it expires to prevent service interruption.
+    - **Description:** Enter a clear description, such as `OpenArchiver Key`.
+    - **Expires:** Select an expiry duration. We recommend **12 or 24 months**. Set a calendar reminder to renew it before it expires to prevent service interruption.
 4.  Click **Add**.
 5.  **IMMEDIATELY COPY THE SECRET:** The secret is now visible in the **"Value"** column. This is the only time it will be fully displayed. Copy this value now and store it in a secure password manager before navigating away. If you lose it, you must create a new one.
 
@@ -75,12 +75,11 @@ You now have the three pieces of information required to configure the connectio
     Click the **"Create New"** button.
 
 3.  **Fill in the Configuration Details:**
-
-    -   **Name:** Give the source a name (e.g., "Microsoft 365 Archive").
-    -   **Provider:** Select **"Microsoft 365"** from the dropdown.
-    -   **Application (Client) ID:** Go to the **Overview** page of your app registration in the Entra admin center and copy this value.
-    -   **Directory (Tenant) ID:** This value is also on the **Overview** page.
-    -   **Client Secret Value:** Paste the secret **Value** (not the Secret ID) that you copied and saved in the previous step.
+    - **Name:** Give the source a name (e.g., "Microsoft 365 Archive").
+    - **Provider:** Select **"Microsoft 365"** from the dropdown.
+    - **Application (Client) ID:** Go to the **Overview** page of your app registration in the Entra admin center and copy this value.
+    - **Directory (Tenant) ID:** This value is also on the **Overview** page.
+    - **Client Secret Value:** Paste the secret **Value** (not the Secret ID) that you copied and saved in the previous step.
 
 4.  **Save Changes:**
     Click **"Save changes"**.

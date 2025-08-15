@@ -14,40 +14,40 @@ import { StorageService } from '../../services/StorageService';
  * 'process-mailbox' jobs, aggregating successes, and reporting detailed failures.
  */
 export const processMailboxProcessor = async (job: Job<IProcessMailboxJob, SyncState, string>) => {
-    const { ingestionSourceId, userEmail } = job.data;
+	const { ingestionSourceId, userEmail } = job.data;
 
-    logger.info({ ingestionSourceId, userEmail }, `Processing mailbox for user`);
+	logger.info({ ingestionSourceId, userEmail }, `Processing mailbox for user`);
 
-    try {
-        const source = await IngestionService.findById(ingestionSourceId);
-        if (!source) {
-            throw new Error(`Ingestion source with ID ${ingestionSourceId} not found`);
-        }
+	try {
+		const source = await IngestionService.findById(ingestionSourceId);
+		if (!source) {
+			throw new Error(`Ingestion source with ID ${ingestionSourceId} not found`);
+		}
 
-        const connector = EmailProviderFactory.createConnector(source);
-        const ingestionService = new IngestionService();
-        const storageService = new StorageService();
+		const connector = EmailProviderFactory.createConnector(source);
+		const ingestionService = new IngestionService();
+		const storageService = new StorageService();
 
-        // Pass the sync state for the entire source, the connector will handle per-user logic if necessary
-        for await (const email of connector.fetchEmails(userEmail, source.syncState)) {
-            if (email) {
-                await ingestionService.processEmail(email, source, storageService, userEmail);
-            }
-        }
+		// Pass the sync state for the entire source, the connector will handle per-user logic if necessary
+		for await (const email of connector.fetchEmails(userEmail, source.syncState)) {
+			if (email) {
+				await ingestionService.processEmail(email, source, storageService, userEmail);
+			}
+		}
 
-        const newSyncState = connector.getUpdatedSyncState(userEmail);
+		const newSyncState = connector.getUpdatedSyncState(userEmail);
 
-        logger.info({ ingestionSourceId, userEmail }, `Finished processing mailbox for user`);
+		logger.info({ ingestionSourceId, userEmail }, `Finished processing mailbox for user`);
 
-        // Return the new sync state to be aggregated by the parent flow
-        return newSyncState;
-    } catch (error) {
-        logger.error({ err: error, ingestionSourceId, userEmail }, 'Error processing mailbox');
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const processMailboxError: ProcessMailboxError = {
-            error: true,
-            message: `Failed to process mailbox for ${userEmail}: ${errorMessage}`
-        };
-        return processMailboxError;
-    }
+		// Return the new sync state to be aggregated by the parent flow
+		return newSyncState;
+	} catch (error) {
+		logger.error({ err: error, ingestionSourceId, userEmail }, 'Error processing mailbox');
+		const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+		const processMailboxError: ProcessMailboxError = {
+			error: true,
+			message: `Failed to process mailbox for ${userEmail}: ${errorMessage}`,
+		};
+		return processMailboxError;
+	}
 };

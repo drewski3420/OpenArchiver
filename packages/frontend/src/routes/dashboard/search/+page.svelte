@@ -8,7 +8,7 @@
 		CardContent,
 		CardHeader,
 		CardTitle,
-		CardDescription
+		CardDescription,
 	} from '$lib/components/ui/card';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -27,7 +27,7 @@
 	const strategies = [
 		{ value: 'last', label: 'Fuzzy' },
 		{ value: 'all', label: 'Verbatim' },
-		{ value: 'frequency', label: 'Frequency' }
+		{ value: 'frequency', label: 'Frequency' },
 	];
 
 	const triggerContent = $derived(
@@ -54,7 +54,7 @@
 			update(newHtml: string | undefined) {
 				if (newHtml === undefined) return;
 				content.innerHTML = newHtml;
-			}
+			},
 		};
 	}
 
@@ -160,7 +160,10 @@
 	};
 
 	let paginationItems = $derived(
-		getPaginationItems(page, Math.ceil((searchResult?.total || 0) / (searchResult?.limit || 10)))
+		getPaginationItems(
+			page,
+			Math.ceil((searchResult?.total || 0) / (searchResult?.limit || 10))
+		)
 	);
 </script>
 
@@ -191,7 +194,11 @@
 				</Select.Trigger>
 				<Select.Content>
 					{#each strategies as strategy (strategy.value)}
-						<Select.Item value={strategy.value} label={strategy.label} class="cursor-pointer">
+						<Select.Item
+							value={strategy.value}
+							label={strategy.label}
+							class="cursor-pointer"
+						>
 							{strategy.label}
 						</Select.Item>
 					{/each}
@@ -229,23 +236,30 @@
 							<CardDescription class="flex items-center space-x-1">
 								<span>From:</span>
 								{#if !isMounted}
-									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"></span>
+									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"
+									></span>
 								{:else}
-									<span class="inline-block" use:shadowRender={_formatted.from || hit.from}></span>
+									<span
+										class="inline-block"
+										use:shadowRender={_formatted.from || hit.from}
+									></span>
 								{/if}
 								<span class="mx-2">|</span>
 								<span>To:</span>
 								{#if !isMounted}
-									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"></span>
+									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"
+									></span>
 								{:else}
 									<span
 										class="inline-block"
-										use:shadowRender={_formatted.to?.join(', ') || hit.to.join(', ')}
+										use:shadowRender={_formatted.to?.join(', ') ||
+											hit.to.join(', ')}
 									></span>
 								{/if}
 								<span class="mx-2">|</span>
 								{#if !isMounted}
-									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"></span>
+									<span class="bg-accent h-4 w-40 animate-pulse rounded-md"
+									></span>
 								{:else}
 									<span class="inline-block">
 										{new Date(hit.timestamp).toLocaleString()}
@@ -257,12 +271,17 @@
 							<!-- Body matches -->
 							{#if _formatted.body}
 								{#each getHighlightedSnippets(_formatted.body) as snippet}
-									<div class="space-y-2 rounded-md bg-slate-100 p-2 dark:bg-slate-800">
+									<div
+										class="space-y-2 rounded-md bg-slate-100 p-2 dark:bg-slate-800"
+									>
 										<p class="text-sm text-gray-500">In email body:</p>
 										{#if !isMounted}
 											<Skeleton class="my-2 h-5 w-full bg-gray-200" />
 										{:else}
-											<p class="font-mono text-sm" use:shadowRender={snippet}></p>
+											<p
+												class="font-mono text-sm"
+												use:shadowRender={snippet}
+											></p>
 										{/if}
 									</div>
 								{/each}
@@ -273,14 +292,19 @@
 								{#each _formatted.attachments as attachment, i}
 									{#if attachment && attachment.content}
 										{#each getHighlightedSnippets(attachment.content) as snippet}
-											<div class="space-y-2 rounded-md bg-slate-100 p-2 dark:bg-slate-800">
+											<div
+												class="space-y-2 rounded-md bg-slate-100 p-2 dark:bg-slate-800"
+											>
 												<p class="text-sm text-gray-500">
 													In attachment: {attachment.filename}
 												</p>
 												{#if !isMounted}
 													<Skeleton class="my-2 h-5 w-full bg-gray-200" />
 												{:else}
-													<p class="font-mono text-sm" use:shadowRender={snippet}></p>
+													<p
+														class="font-mono text-sm"
+														use:shadowRender={snippet}
+													></p>
 												{/if}
 											</div>
 										{/each}
@@ -326,7 +350,8 @@
 				>
 					<Button
 						variant="outline"
-						disabled={page === Math.ceil(searchResult.total / searchResult.limit)}>Next</Button
+						disabled={page === Math.ceil(searchResult.total / searchResult.limit)}
+						>Next</Button
 					>
 				</a>
 			</div>

@@ -6,7 +6,7 @@ import * as schema from './schema';
 import { encodeDatabaseUrl } from '../helpers/db';
 
 if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is not set in the .env file');
+	throw new Error('DATABASE_URL is not set in the .env file');
 }
 
 const connectionString = encodeDatabaseUrl(process.env.DATABASE_URL);

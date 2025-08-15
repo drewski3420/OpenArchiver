@@ -1,6 +1,5 @@
 import { db } from '../database';
 
 export class DatabaseService {
-    public db = db;
+	public db = db;
 }
-

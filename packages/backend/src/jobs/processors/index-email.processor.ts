@@ -9,8 +9,8 @@ const storageService = new StorageService();
 const databaseService = new DatabaseService();
 const indexingService = new IndexingService(databaseService, searchService, storageService);
 
-export default async function (job: Job<{ emailId: string; }>) {
-    const { emailId } = job.data;
-    console.log(`Indexing email with ID: ${emailId}`);
-    await indexingService.indexEmailById(emailId);
+export default async function (job: Job<{ emailId: string }>) {
+	const { emailId } = job.data;
+	console.log(`Indexing email with ID: ${emailId}`);
+	await indexingService.indexEmailById(emailId);
 }

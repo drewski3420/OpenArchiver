@@ -14,8 +14,8 @@ The `StorageService` is configured via environment variables in the `.env` file.
 
 The `STORAGE_TYPE` variable determines which provider the service will use.
 
--   `STORAGE_TYPE=local`: Uses the local server's filesystem.
--   `STORAGE_TYPE=s3`: Uses an S3-compatible object storage service (e.g., AWS S3, MinIO, Google Cloud Storage).
+- `STORAGE_TYPE=local`: Uses the local server's filesystem.
+- `STORAGE_TYPE=s3`: Uses an S3-compatible object storage service (e.g., AWS S3, MinIO, Google Cloud Storage).
 
 ### 2. Local Filesystem Configuration
 
@@ -27,7 +27,7 @@ STORAGE_TYPE=local
 STORAGE_LOCAL_ROOT_PATH=/var/data/open-archiver
 ```
 
--   `STORAGE_LOCAL_ROOT_PATH`: The absolute path on the server where the archive will be created. The service will create subdirectories within this path as needed.
+- `STORAGE_LOCAL_ROOT_PATH`: The absolute path on the server where the archive will be created. The service will create subdirectories within this path as needed.
 
 ### 3. S3-Compatible Storage Configuration
 
@@ -44,12 +44,12 @@ STORAGE_S3_REGION=us-east-1
 STORAGE_S3_FORCE_PATH_STYLE=true
 ```
 
--   `STORAGE_S3_ENDPOINT`: The full URL of the S3 API endpoint.
--   `STORAGE_S3_BUCKET`: The name of the bucket to use for storage.
--   `STORAGE_S3_ACCESS_KEY_ID`: The access key for your S3 user.
--   `STORAGE_S3_SECRET_ACCESS_KEY`: The secret key for your S3 user.
--   `STORAGE_S3_REGION` (Optional): The AWS region of your bucket. Recommended for AWS S3.
--   `STORAGE_S3_FORCE_PATH_STYLE` (Optional): Set to `true` when using non-AWS S3 services like MinIO.
+- `STORAGE_S3_ENDPOINT`: The full URL of the S3 API endpoint.
+- `STORAGE_S3_BUCKET`: The name of the bucket to use for storage.
+- `STORAGE_S3_ACCESS_KEY_ID`: The access key for your S3 user.
+- `STORAGE_S3_SECRET_ACCESS_KEY`: The secret key for your S3 user.
+- `STORAGE_S3_REGION` (Optional): The AWS region of your bucket. Recommended for AWS S3.
+- `STORAGE_S3_FORCE_PATH_STYLE` (Optional): Set to `true` when using non-AWS S3 services like MinIO.
 
 ## How to Use the Service
 
@@ -61,31 +61,27 @@ The `StorageService` is designed to be used via dependency injection in other se
 import { StorageService } from './StorageService';
 
 class IngestionService {
-    private storageService: StorageService;
+	private storageService: StorageService;
 
-    constructor() {
-        // The StorageService is instantiated without any arguments.
-        // It automatically reads the configuration from the environment.
-        this.storageService = new StorageService();
-    }
+	constructor() {
+		// The StorageService is instantiated without any arguments.
+		// It automatically reads the configuration from the environment.
+		this.storageService = new StorageService();
+	}
 
-    public async archiveEmail(
-        rawEmail: Buffer,
-        userId: string,
-        messageId: string
-    ): Promise<void> {
-        // Define a structured, unique path for the email.
-        const archivePath = `${userId}/messages/${messageId}.eml`;
+	public async archiveEmail(rawEmail: Buffer, userId: string, messageId: string): Promise<void> {
+		// Define a structured, unique path for the email.
+		const archivePath = `${userId}/messages/${messageId}.eml`;
 
-        try {
-            // Use the service. It doesn't know or care if this is writing
-            // to a local disk or an S3 bucket.
-            await this.storageService.put(archivePath, rawEmail);
-            console.log(`Successfully archived email to ${archivePath}`);
-        } catch (error) {
-            console.error(`Failed to archive email ${messageId}`, error);
-        }
-    }
+		try {
+			// Use the service. It doesn't know or care if this is writing
+			// to a local disk or an S3 bucket.
+			await this.storageService.put(archivePath, rawEmail);
+			console.log(`Successfully archived email to ${archivePath}`);
+		} catch (error) {
+			console.error(`Failed to archive email ${messageId}`, error);
+		}
+	}
 }
 ```
 
@@ -99,9 +95,9 @@ The `StorageService` implements the `IStorageProvider` interface. All methods ar
 
 Stores a file at the specified path. If a file already exists at that path, it will be overwritten.
 
--   **`path: string`**: A unique identifier for the file, including its directory structure (e.g., `"user-123/emails/message-abc.eml"`).
--   **`content: Buffer | NodeJS.ReadableStream`**: The content of the file. It can be a `Buffer` for small files or a `ReadableStream` for large files to ensure memory efficiency.
--   **Returns**: `Promise<void>` - A promise that resolves when the file has been successfully stored.
+- **`path: string`**: A unique identifier for the file, including its directory structure (e.g., `"user-123/emails/message-abc.eml"`).
+- **`content: Buffer | NodeJS.ReadableStream`**: The content of the file. It can be a `Buffer` for small files or a `ReadableStream` for large files to ensure memory efficiency.
+- **Returns**: `Promise<void>` - A promise that resolves when the file has been successfully stored.
 
 ---
 
@@ -109,9 +105,9 @@ Stores a file at the specified path. If a file already exists at that path, it w
 
 Retrieves a file from the specified path as a readable stream.
 
--   **`path: string`**: The unique identifier of the file to retrieve.
--   **Returns**: `Promise<NodeJS.ReadableStream>` - A promise that resolves with a readable stream of the file's content.
--   **Throws**: An `Error` if the file is not found at the specified path.
+- **`path: string`**: The unique identifier of the file to retrieve.
+- **Returns**: `Promise<NodeJS.ReadableStream>` - A promise that resolves with a readable stream of the file's content.
+- **Throws**: An `Error` if the file is not found at the specified path.
 
 ---
 
@@ -119,8 +115,8 @@ Retrieves a file from the specified path as a readable stream.
 
 Deletes a file from the storage backend.
 
--   **`path: string`**: The unique identifier of the file to delete.
--   **Returns**: `Promise<void>` - A promise that resolves when the file is deleted. If the file does not exist, the promise will still resolve successfully without throwing an error.
+- **`path: string`**: The unique identifier of the file to delete.
+- **Returns**: `Promise<void>` - A promise that resolves when the file is deleted. If the file does not exist, the promise will still resolve successfully without throwing an error.
 
 ---
 
@@ -128,5 +124,5 @@ Deletes a file from the storage backend.
 
 Checks for the existence of a file.
 
--   **`path: string`**: The unique identifier of the file to check.
--   **Returns**: `Promise<boolean>` - A promise that resolves with `true` if the file exists, and `false` otherwise.
+- **`path: string`**: The unique identifier of the file to check.
+- **Returns**: `Promise<boolean>` - A promise that resolves with `true` if the file exists, and `false` otherwise.

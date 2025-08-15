@@ -4,8 +4,8 @@ import { searchConfig } from './search';
 import { connection as redisConfig } from './redis';
 
 export const config = {
-    storage,
-    app,
-    search: searchConfig,
-    redis: redisConfig,
+	storage,
+	app,
+	search: searchConfig,
+	redis: redisConfig,
 };

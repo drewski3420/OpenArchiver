@@ -20,7 +20,7 @@ Downloads a file from the storage.
 
 #### Responses
 
--   **200 OK:** The file stream.
--   **400 Bad Request:** File path is required or invalid.
--   **404 Not Found:** File not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **200 OK:** The file stream.
+- **400 Bad Request:** File path is required or invalid.
+- **404 Not Found:** File not found.
+- **500 Internal Server Error:** An unexpected error occurred.

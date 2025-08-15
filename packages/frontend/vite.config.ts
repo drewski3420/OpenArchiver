@@ -13,11 +13,11 @@ export default defineConfig({
 			'/api': {
 				target: `http://localhost:${process.env.PORT_BACKEND || 4000}`,
 				changeOrigin: true,
-				rewrite: (path) => path.replace(/^\/api/, '')
-			}
-		}
+				rewrite: (path) => path.replace(/^\/api/, ''),
+			},
+		},
 	},
 	ssr: {
-		noExternal: ['layerchart']
-	}
+		noExternal: ['layerchart'],
+	},
 });

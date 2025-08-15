@@ -4,15 +4,15 @@ import { requireAuth } from '../middleware/requireAuth';
 import { AuthService } from '../../services/AuthService';
 
 export const createStorageRouter = (
-    storageController: StorageController,
-    authService: AuthService
+	storageController: StorageController,
+	authService: AuthService
 ): Router => {
-    const router = Router();
+	const router = Router();
 
-    // Secure all routes in this module
-    router.use(requireAuth(authService));
+	// Secure all routes in this module
+	router.use(requireAuth(authService));
 
-    router.get('/download', storageController.downloadFile);
+	router.get('/download', storageController.downloadFile);
 
-    return router;
+	return router;
 };

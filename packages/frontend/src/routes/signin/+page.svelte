@@ -18,7 +18,7 @@
 		try {
 			const response = await api('/auth/login', {
 				method: 'POST',
-				body: JSON.stringify({ email, password })
+				body: JSON.stringify({ email, password }),
 			});
 			if (!response.ok) {
 				let errorMessage = 'Failed to login';
@@ -41,7 +41,7 @@
 				title: 'Login Failed',
 				message: e.message,
 				duration: 5000,
-				show: true
+				show: true,
 			});
 		} finally {
 			isLoading = false;
@@ -76,7 +76,13 @@
 			<form onsubmit={handleSubmit} class="grid gap-4">
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
-					<Input id="email" type="email" placeholder="m@example.com" bind:value={email} required />
+					<Input
+						id="email"
+						type="email"
+						placeholder="m@example.com"
+						bind:value={email}
+						required
+					/>
 				</div>
 				<div class="grid gap-2">
 					<Label for="password">Password</Label>

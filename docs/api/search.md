@@ -24,27 +24,27 @@ Performs a search query against the indexed emails.
 
 #### Responses
 
--   **200 OK:** A search result object.
+- **200 OK:** A search result object.
 
     ```json
     {
-        "hits": [
-            {
-                "id": "email-id",
-                "subject": "Test Email",
-                "from": "sender@example.com",
-                "_formatted": {
-                    "subject": "<em>Test</em> Email"
-                }
-            }
-        ],
-        "total": 1,
-        "page": 1,
-        "limit": 10,
-        "totalPages": 1,
-        "processingTimeMs": 5
+    	"hits": [
+    		{
+    			"id": "email-id",
+    			"subject": "Test Email",
+    			"from": "sender@example.com",
+    			"_formatted": {
+    				"subject": "<em>Test</em> Email"
+    			}
+    		}
+    	],
+    	"total": 1,
+    	"page": 1,
+    	"limit": 10,
+    	"totalPages": 1,
+    	"processingTimeMs": 5
     }
     ```
 
--   **400 Bad Request:** Keywords are required.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **400 Bad Request:** Keywords are required.
+- **500 Internal Server Error:** An unexpected error occurred.

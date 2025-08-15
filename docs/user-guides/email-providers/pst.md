@@ -6,8 +6,8 @@ OpenArchiver allows you to import PST files. This is useful for importing emails
 
 To ensure a successful import, you should prepare your PST file according to the following guidelines:
 
--   **Structure:** The PST file can contain any number of emails, organized in any folder structure. The folder structure will be preserved in OpenArchiver, so you can use it to organize your emails.
--   **Password Protection:** OpenArchiver does not support password-protected PST files. Please remove the password from your PST file before importing it.
+- **Structure:** The PST file can contain any number of emails, organized in any folder structure. The folder structure will be preserved in OpenArchiver, so you can use it to organize your emails.
+- **Password Protection:** OpenArchiver does not support password-protected PST files. Please remove the password from your PST file before importing it.
 
 ## Creating a PST Ingestion Source
 

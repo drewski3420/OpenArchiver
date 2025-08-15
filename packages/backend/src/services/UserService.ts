@@ -6,81 +6,95 @@ import type { PolicyStatement, User } from '@open-archiver/types';
 import { PolicyValidator } from '../iam-policy/policy-validator';
 
 export class UserService {
-    /**
-     * Finds a user by their email address.
-     * @param email The email address of the user to find.
-     * @returns The user object if found, otherwise null.
-     */
-    public async findByEmail(email: string): Promise<(typeof schema.users.$inferSelect) | null> {
-        const user = await db.query.users.findFirst({
-            where: eq(schema.users.email, email)
-        });
-        return user || null;
-    }
+	/**
+	 * Finds a user by their email address.
+	 * @param email The email address of the user to find.
+	 * @returns The user object if found, otherwise null.
+	 */
+	public async findByEmail(email: string): Promise<typeof schema.users.$inferSelect | null> {
+		const user = await db.query.users.findFirst({
+			where: eq(schema.users.email, email),
+		});
+		return user || null;
+	}
 
-    /**
-     * Finds a user by their ID.
-     * @param id The ID of the user to find.
-     * @returns The user object if found, otherwise null.
-     */
-    public async findById(id: string): Promise<(typeof schema.users.$inferSelect) | null> {
-        const user = await db.query.users.findFirst({
-            where: eq(schema.users.id, id)
-        });
-        return user || null;
-    }
+	/**
+	 * Finds a user by their ID.
+	 * @param id The ID of the user to find.
+	 * @returns The user object if found, otherwise null.
+	 */
+	public async findById(id: string): Promise<typeof schema.users.$inferSelect | null> {
+		const user = await db.query.users.findFirst({
+			where: eq(schema.users.id, id),
+		});
+		return user || null;
+	}
 
-    /**
-     * Creates an admin user in the database. The user created will be assigned the 'Super Admin' role.
-     * 
-     * Caution ⚠️: This action can only be allowed in the initial setup
-     * 
-     * @param userDetails The details of the user to create.
-     * @param isSetup Is this an initial setup?
-     * @returns The newly created user object.
-     */
-    public async createAdminUser(userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string; }, isSetup: boolean): Promise<(typeof schema.users.$inferSelect)> {
-        if (!isSetup) {
-            throw Error('This operation is only allowed upon initial setup.');
-        }
-        const { email, first_name, last_name, password } = userDetails;
-        const userCountResult = await db.select({ count: sql<number>`count(*)` }).from(schema.users);
-        const isFirstUser = Number(userCountResult[0].count) === 0;
-        if (!isFirstUser) {
-            throw Error('This operation is only allowed upon initial setup.');
-        }
-        const hashedPassword = password ? await hash(password, 10) : undefined;
+	/**
+	 * Creates an admin user in the database. The user created will be assigned the 'Super Admin' role.
+	 *
+	 * Caution ⚠️: This action can only be allowed in the initial setup
+	 *
+	 * @param userDetails The details of the user to create.
+	 * @param isSetup Is this an initial setup?
+	 * @returns The newly created user object.
+	 */
+	public async createAdminUser(
+		userDetails: Pick<User, 'email' | 'first_name' | 'last_name'> & { password?: string },
+		isSetup: boolean
+	): Promise<typeof schema.users.$inferSelect> {
+		if (!isSetup) {
+			throw Error('This operation is only allowed upon initial setup.');
+		}
+		const { email, first_name, last_name, password } = userDetails;
+		const userCountResult = await db
+			.select({ count: sql<number>`count(*)` })
+			.from(schema.users);
+		const isFirstUser = Number(userCountResult[0].count) === 0;
+		if (!isFirstUser) {
+			throw Error('This operation is only allowed upon initial setup.');
+		}
+		const hashedPassword = password ? await hash(password, 10) : undefined;
 
-        const newUser = await db.insert(schema.users).values({
-            email,
-            first_name,
-            last_name,
-            password: hashedPassword,
-        }).returning();
+		const newUser = await db
+			.insert(schema.users)
+			.values({
+				email,
+				first_name,
+				last_name,
+				password: hashedPassword,
+			})
+			.returning();
 
-        // find super admin role
-        let superAdminRole = await db.query.roles.findFirst({
-            where: eq(schema.roles.name, 'Super Admin')
-        });
+		// find super admin role
+		let superAdminRole = await db.query.roles.findFirst({
+			where: eq(schema.roles.name, 'Super Admin'),
+		});
 
-        if (!superAdminRole) {
-            const suerAdminPolicies: PolicyStatement[] = [{
-                Effect: 'Allow',
-                Action: ['*'],
-                Resource: ['*']
-            }];
-            superAdminRole = (await db.insert(schema.roles).values({
-                name: 'Super Admin',
-                policies: suerAdminPolicies
-            }).returning())[0];
-        }
+		if (!superAdminRole) {
+			const suerAdminPolicies: PolicyStatement[] = [
+				{
+					Effect: 'Allow',
+					Action: ['*'],
+					Resource: ['*'],
+				},
+			];
+			superAdminRole = (
+				await db
+					.insert(schema.roles)
+					.values({
+						name: 'Super Admin',
+						policies: suerAdminPolicies,
+					})
+					.returning()
+			)[0];
+		}
 
-        await db.insert(schema.userRoles).values({
-            userId: newUser[0].id,
-            roleId: superAdminRole.id
-        });
+		await db.insert(schema.userRoles).values({
+			userId: newUser[0].id,
+			roleId: superAdminRole.id,
+		});
 
-
-        return newUser[0];
-    }
+		return newUser[0];
+	}
 }

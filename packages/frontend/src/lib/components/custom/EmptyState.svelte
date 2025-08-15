@@ -5,7 +5,7 @@
 		header,
 		text,
 		buttonText,
-		click
+		click,
 	}: {
 		header: string;
 		text: string;

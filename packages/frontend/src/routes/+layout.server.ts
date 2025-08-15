@@ -4,27 +4,25 @@ import 'dotenv/config';
 import { api } from '$lib/server/api';
 
 export const load: LayoutServerLoad = async (event) => {
-    const { locals, url } = event;
-    try {
-        const response = await api('/auth/status', event);
-        const { needsSetup } = await response.json();
+	const { locals, url } = event;
+	try {
+		const response = await api('/auth/status', event);
+		const { needsSetup } = await response.json();
 
-        if (needsSetup && url.pathname !== '/setup') {
-            throw redirect(307, '/setup');
-        }
+		if (needsSetup && url.pathname !== '/setup') {
+			throw redirect(307, '/setup');
+		}
 
-        if (!needsSetup && url.pathname === '/setup') {
-            throw redirect(307, '/signin');
-        }
-    } catch (error) {
-        throw error;
+		if (!needsSetup && url.pathname === '/setup') {
+			throw redirect(307, '/signin');
+		}
+	} catch (error) {
+		throw error;
+	}
 
-    }
-
-
-    return {
-        user: locals.user,
-        accessToken: locals.accessToken,
-        isDemo: process.env.IS_DEMO === 'true'
-    };
+	return {
+		user: locals.user,
+		accessToken: locals.accessToken,
+		isDemo: process.env.IS_DEMO === 'true',
+	};
 };

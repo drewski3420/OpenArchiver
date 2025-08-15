@@ -60,7 +60,10 @@
 	};
 
 	let paginationItems = $derived(
-		getPaginationItems(archivedEmails.page, Math.ceil(archivedEmails.total / archivedEmails.limit))
+		getPaginationItems(
+			archivedEmails.page,
+			Math.ceil(archivedEmails.total / archivedEmails.limit)
+		)
 	);
 </script>
 
@@ -125,7 +128,9 @@
 						<Table.Cell>{email.userEmail}</Table.Cell>
 						<Table.Cell>
 							{#if email.path}
-								<span class="  bg-muted truncate rounded p-1.5 text-xs">{email.path} </span>
+								<span class="  bg-muted truncate rounded p-1.5 text-xs"
+									>{email.path}
+								</span>
 							{/if}
 						</Table.Cell>
 						<Table.Cell class="text-right">
@@ -137,7 +142,9 @@
 				{/each}
 			{:else}
 				<Table.Row>
-					<Table.Cell colspan={5} class="text-center">No archived emails found.</Table.Cell>
+					<Table.Cell colspan={5} class="text-center"
+						>No archived emails found.</Table.Cell
+					>
 				</Table.Row>
 			{/if}
 		</Table.Body>
@@ -160,7 +167,9 @@
 				<a
 					href={`/dashboard/archived-emails?ingestionSourceId=${selectedIngestionSourceId}&page=${item}&limit=${archivedEmails.limit}`}
 				>
-					<Button variant={item === archivedEmails.page ? 'default' : 'outline'}>{item}</Button>
+					<Button variant={item === archivedEmails.page ? 'default' : 'outline'}
+						>{item}</Button
+					>
 				</a>
 			{:else}
 				<span class="px-4 py-2">...</span>
@@ -177,8 +186,8 @@
 		>
 			<Button
 				variant="outline"
-				disabled={archivedEmails.page === Math.ceil(archivedEmails.total / archivedEmails.limit)}
-				>Next</Button
+				disabled={archivedEmails.page ===
+					Math.ceil(archivedEmails.total / archivedEmails.limit)}>Next</Button
 			>
 		</a>
 	</div>

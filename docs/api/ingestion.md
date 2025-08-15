@@ -18,16 +18,16 @@ The request body should be a `CreateIngestionSourceDto` object.
 
 ```typescript
 interface CreateIngestionSourceDto {
-    name: string;
-    provider: 'google' | 'microsoft' | 'generic_imap';
-    providerConfig: IngestionCredentials;
+	name: string;
+	provider: 'google' | 'microsoft' | 'generic_imap';
+	providerConfig: IngestionCredentials;
 }
 ```
 
 #### Responses
 
--   **201 Created:** The newly created ingestion source.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **201 Created:** The newly created ingestion source.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### GET /api/v1/ingestion-sources
 
@@ -37,8 +37,8 @@ Retrieves all ingestion sources.
 
 #### Responses
 
--   **200 OK:** An array of ingestion source objects.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **200 OK:** An array of ingestion source objects.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### GET /api/v1/ingestion-sources/:id
 
@@ -54,9 +54,9 @@ Retrieves a single ingestion source by its ID.
 
 #### Responses
 
--   **200 OK:** The ingestion source object.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **200 OK:** The ingestion source object.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### PUT /api/v1/ingestion-sources/:id
 
@@ -76,24 +76,18 @@ The request body should be an `UpdateIngestionSourceDto` object.
 
 ```typescript
 interface UpdateIngestionSourceDto {
-    name?: string;
-    provider?: 'google' | 'microsoft' | 'generic_imap';
-    providerConfig?: IngestionCredentials;
-    status?:
-        | 'pending_auth'
-        | 'auth_success'
-        | 'importing'
-        | 'active'
-        | 'paused'
-        | 'error';
+	name?: string;
+	provider?: 'google' | 'microsoft' | 'generic_imap';
+	providerConfig?: IngestionCredentials;
+	status?: 'pending_auth' | 'auth_success' | 'importing' | 'active' | 'paused' | 'error';
 }
 ```
 
 #### Responses
 
--   **200 OK:** The updated ingestion source object.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **200 OK:** The updated ingestion source object.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### DELETE /api/v1/ingestion-sources/:id
 
@@ -109,9 +103,9 @@ Deletes an ingestion source and all associated data.
 
 #### Responses
 
--   **204 No Content:** The ingestion source was deleted successfully.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **204 No Content:** The ingestion source was deleted successfully.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### POST /api/v1/ingestion-sources/:id/import
 
@@ -127,9 +121,9 @@ Triggers the initial import process for an ingestion source.
 
 #### Responses
 
--   **202 Accepted:** The initial import was triggered successfully.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **202 Accepted:** The initial import was triggered successfully.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### POST /api/v1/ingestion-sources/:id/pause
 
@@ -145,9 +139,9 @@ Pauses an active ingestion source.
 
 #### Responses
 
--   **200 OK:** The updated ingestion source object with a `paused` status.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **200 OK:** The updated ingestion source object with a `paused` status.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.
 
 ### POST /api/v1/ingestion-sources/:id/sync
 
@@ -163,6 +157,6 @@ Triggers a forced synchronization for an ingestion source.
 
 #### Responses
 
--   **202 Accepted:** The force sync was triggered successfully.
--   **404 Not Found:** Ingestion source not found.
--   **500 Internal Server Error:** An unexpected error occurred.
+- **202 Accepted:** The force sync was triggered successfully.
+- **404 Not Found:** Ingestion source not found.
+- **500 Internal Server Error:** An unexpected error occurred.

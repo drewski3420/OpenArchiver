@@ -5,10 +5,10 @@ import { PolicyStatement } from './iam.types';
  * This is the core user object that will be stored in the database.
  */
 export interface User {
-    id: string;
-    first_name: string | null;
-    last_name: string | null;
-    email: string;
+	id: string;
+	first_name: string | null;
+	last_name: string | null;
+	email: string;
 }
 
 /**
@@ -16,9 +16,9 @@ export interface User {
  * This is used to track a user's login status.
  */
 export interface Session {
-    id: string;
-    userId: string;
-    expiresAt: Date;
+	id: string;
+	userId: string;
+	expiresAt: Date;
 }
 
 /**
@@ -26,9 +26,9 @@ export interface Session {
  * Roles are used to group a set of permissions together.
  */
 export interface Role {
-    id: string;
-    name: string;
-    policies: PolicyStatement[];
-    createdAt: Date;
-    updatedAt: Date;
+	id: string;
+	name: string;
+	policies: PolicyStatement[];
+	createdAt: Date;
+	updatedAt: Date;
 }

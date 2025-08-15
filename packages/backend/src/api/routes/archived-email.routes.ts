@@ -4,19 +4,19 @@ import { requireAuth } from '../middleware/requireAuth';
 import { AuthService } from '../../services/AuthService';
 
 export const createArchivedEmailRouter = (
-    archivedEmailController: ArchivedEmailController,
-    authService: AuthService
+	archivedEmailController: ArchivedEmailController,
+	authService: AuthService
 ): Router => {
-    const router = Router();
+	const router = Router();
 
-    // Secure all routes in this module
-    router.use(requireAuth(authService));
+	// Secure all routes in this module
+	router.use(requireAuth(authService));
 
-    router.get('/ingestion-source/:ingestionSourceId', archivedEmailController.getArchivedEmails);
+	router.get('/ingestion-source/:ingestionSourceId', archivedEmailController.getArchivedEmails);
 
-    router.get('/:id', archivedEmailController.getArchivedEmailById);
+	router.get('/:id', archivedEmailController.getArchivedEmailById);
 
-    router.delete('/:id', archivedEmailController.deleteArchivedEmail);
+	router.delete('/:id', archivedEmailController.deleteArchivedEmail);
 
-    return router;
+	return router;
 };
