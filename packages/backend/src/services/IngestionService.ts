@@ -25,6 +25,7 @@ import { IndexingService } from './IndexingService';
 import { SearchService } from './SearchService';
 import { DatabaseService } from './DatabaseService';
 import { config } from '../config/index';
+import { FilterBuilder } from './FilterBuilder';
 
 export class IngestionService {
 	private static decryptSource(
@@ -49,11 +50,15 @@ export class IngestionService {
 		return ['pst_import', 'eml_import'];
 	}
 
-	public static async create(dto: CreateIngestionSourceDto): Promise<IngestionSource> {
+	public static async create(
+		dto: CreateIngestionSourceDto,
+		userId: string
+	): Promise<IngestionSource> {
 		const { providerConfig, ...rest } = dto;
 		const encryptedCredentials = CryptoService.encryptObject(providerConfig);
 
 		const valuesToInsert = {
+			userId,
 			...rest,
 			status: 'pending_auth' as const,
 			credentials: encryptedCredentials,
@@ -81,11 +86,15 @@ export class IngestionService {
 		}
 	}
 
-	public static async findAll(): Promise<IngestionSource[]> {
-		const sources = await db
-			.select()
-			.from(ingestionSources)
-			.orderBy(desc(ingestionSources.createdAt));
+	public static async findAll(userId: string): Promise<IngestionSource[]> {
+		const { drizzleFilter } = await FilterBuilder.create(userId, 'ingestion', 'read');
+		let query = db.select().from(ingestionSources).$dynamic();
+
+		if (drizzleFilter) {
+			query = query.where(drizzleFilter);
+		}
+
+		const sources = await query.orderBy(desc(ingestionSources.createdAt));
 		return sources.flatMap((source) => {
 			const decrypted = this.decryptSource(source);
 			return decrypted ? [decrypted] : [];
@@ -398,6 +407,8 @@ export class IngestionService {
 				searchService,
 				storageService
 			);
+			//assign userEmail
+			email.userEmail = userEmail
 			await indexingService.indexByEmail(email, source.id, archivedEmail.id);
 		} catch (error) {
 			logger.error({

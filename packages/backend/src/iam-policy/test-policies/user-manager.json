@@ -1,0 +1,10 @@
+[
+	{
+		"action": "manage",
+		"subject": "users"
+	},
+	{
+		"action": "read",
+		"subject": "roles"
+	}
+]

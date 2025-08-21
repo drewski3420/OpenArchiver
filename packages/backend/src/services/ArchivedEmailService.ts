@@ -1,6 +1,13 @@
 import { count, desc, eq, asc, and } from 'drizzle-orm';
 import { db } from '../database';
-import { archivedEmails, attachments, emailAttachments } from '../database/schema';
+import {
+	archivedEmails,
+	attachments,
+	emailAttachments,
+	ingestionSources,
+} from '../database/schema';
+import { FilterBuilder } from './FilterBuilder';
+import { AuthorizationService } from './AuthorizationService';
 import type {
 	PaginatedArchivedEmails,
 	ArchivedEmail,
@@ -41,24 +48,40 @@ export class ArchivedEmailService {
 	public static async getArchivedEmails(
 		ingestionSourceId: string,
 		page: number,
-		limit: number
+		limit: number,
+		userId: string
 	): Promise<PaginatedArchivedEmails> {
 		const offset = (page - 1) * limit;
+		const { drizzleFilter } = await FilterBuilder.create(userId, 'archive', 'read');
+		const where = and(eq(archivedEmails.ingestionSourceId, ingestionSourceId), drizzleFilter);
 
-		const [total] = await db
+		const countQuery = db
 			.select({
 				count: count(archivedEmails.id),
 			})
 			.from(archivedEmails)
-			.where(eq(archivedEmails.ingestionSourceId, ingestionSourceId));
+			.leftJoin(ingestionSources, eq(archivedEmails.ingestionSourceId, ingestionSources.id));
 
-		const items = await db
+		if (where) {
+			countQuery.where(where);
+		}
+
+		const [total] = await countQuery;
+
+		const itemsQuery = db
 			.select()
 			.from(archivedEmails)
-			.where(eq(archivedEmails.ingestionSourceId, ingestionSourceId))
+			.leftJoin(ingestionSources, eq(archivedEmails.ingestionSourceId, ingestionSources.id))
 			.orderBy(desc(archivedEmails.sentAt))
 			.limit(limit)
 			.offset(offset);
+
+		if (where) {
+			itemsQuery.where(where);
+		}
+
+		const results = await itemsQuery;
+		const items = results.map((r) => r.archived_emails);
 
 		return {
 			items: items.map((item) => ({
@@ -73,13 +96,25 @@ export class ArchivedEmailService {
 		};
 	}
 
-	public static async getArchivedEmailById(emailId: string): Promise<ArchivedEmail | null> {
-		const [email] = await db
-			.select()
-			.from(archivedEmails)
-			.where(eq(archivedEmails.id, emailId));
+	public static async getArchivedEmailById(
+		emailId: string,
+		userId: string
+	): Promise<ArchivedEmail | null> {
+		const email = await db.query.archivedEmails.findFirst({
+			where: eq(archivedEmails.id, emailId),
+			with: {
+				ingestionSource: true,
+			},
+		});
 
 		if (!email) {
+			return null;
+		}
+
+		const authorizationService = new AuthorizationService();
+		const canRead = await authorizationService.can(userId, 'read', 'archive', email);
+
+		if (!canRead) {
 			return null;
 		}
 

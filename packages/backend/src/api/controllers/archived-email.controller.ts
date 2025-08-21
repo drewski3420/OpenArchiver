@@ -8,11 +8,17 @@ export class ArchivedEmailController {
 			const { ingestionSourceId } = req.params;
 			const page = parseInt(req.query.page as string, 10) || 1;
 			const limit = parseInt(req.query.limit as string, 10) || 10;
+			const userId = req.user?.sub;
+
+			if (!userId) {
+				return res.status(401).json({ message: 'Unauthorized' });
+			}
 
 			const result = await ArchivedEmailService.getArchivedEmails(
 				ingestionSourceId,
 				page,
-				limit
+				limit,
+				userId
 			);
 			return res.status(200).json(result);
 		} catch (error) {
@@ -24,7 +30,13 @@ export class ArchivedEmailController {
 	public getArchivedEmailById = async (req: Request, res: Response): Promise<Response> => {
 		try {
 			const { id } = req.params;
-			const email = await ArchivedEmailService.getArchivedEmailById(id);
+			const userId = req.user?.sub;
+
+			if (!userId) {
+				return res.status(401).json({ message: 'Unauthorized' });
+			}
+
+			const email = await ArchivedEmailService.getArchivedEmailById(id, userId);
 			if (!email) {
 				return res.status(404).json({ message: 'Archived email not found' });
 			}

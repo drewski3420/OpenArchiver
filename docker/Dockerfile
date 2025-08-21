@@ -34,8 +34,6 @@ RUN pnpm build
 # 2. Production Stage: Install only production dependencies and copy built artifacts
 FROM base AS production
 
-# Install production dependencies
-# RUN pnpm install --shamefully-hoist --frozen-lockfile --prod=true
 
 # Copy built application from build stage
 COPY --from=build /app/packages/backend/dist ./packages/backend/dist

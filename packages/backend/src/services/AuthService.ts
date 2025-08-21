@@ -63,7 +63,13 @@ export class AuthService {
 			roles: roles,
 		});
 
-		return { accessToken, user: userWithoutPassword };
+		return {
+			accessToken,
+			user: {
+				...userWithoutPassword,
+				role: null,
+			},
+		};
 	}
 
 	public async verifyToken(token: string): Promise<AuthTokenPayload | null> {

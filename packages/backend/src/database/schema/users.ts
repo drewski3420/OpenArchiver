@@ -1,6 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import { pgTable, text, timestamp, uuid, primaryKey, jsonb } from 'drizzle-orm/pg-core';
-import type { PolicyStatement } from '@open-archiver/types';
+import type { CaslPolicy } from '@open-archiver/types';
 
 /**
  * The `users` table stores the core user information for authentication and identification.
@@ -40,9 +40,10 @@ export const roles = pgTable('roles', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	name: text('name').notNull().unique(),
 	policies: jsonb('policies')
-		.$type<PolicyStatement[]>()
+		.$type<CaslPolicy[]>()
 		.notNull()
 		.default(sql`'[]'::jsonb`),
+	slug: text('slug').unique(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

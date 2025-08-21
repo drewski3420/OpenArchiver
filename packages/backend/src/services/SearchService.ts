@@ -1,6 +1,7 @@
 import { Index, MeiliSearch, SearchParams } from 'meilisearch';
 import { config } from '../config';
 import type { SearchQuery, SearchResult, EmailDocument, TopSender } from '@open-archiver/types';
+import { FilterBuilder } from './FilterBuilder';
 
 export class SearchService {
 	private client: MeiliSearch;
@@ -47,7 +48,7 @@ export class SearchService {
 		return index.deleteDocuments({ filter });
 	}
 
-	public async searchEmails(dto: SearchQuery): Promise<SearchResult> {
+	public async searchEmails(dto: SearchQuery, userId: string): Promise<SearchResult> {
 		const { query, filters, page = 1, limit = 10, matchingStrategy = 'last' } = dto;
 		const index = await this.getIndex<EmailDocument>('emails');
 
@@ -70,6 +71,20 @@ export class SearchService {
 			searchParams.filter = filterStrings.join(' AND ');
 		}
 
+		// Create a filter based on the user's permissions.
+		// This ensures that the user can only search for emails they are allowed to see.
+		const { searchFilter } = await FilterBuilder.create(userId, 'archive', 'read');
+		if (searchFilter) {
+			// Convert the MongoDB-style filter from CASL to a MeiliSearch filter string.
+			if (searchParams.filter) {
+				// If there are existing filters, append the access control filter.
+				searchParams.filter = `${searchParams.filter} AND ${searchFilter}`;
+			} else {
+				// Otherwise, just use the access control filter.
+				searchParams.filter = searchFilter;
+			}
+		}
+		console.log('searchParams', searchParams);
 		const searchResults = await index.search(query, searchParams);
 
 		return {
@@ -116,8 +131,17 @@ export class SearchService {
 				'bcc',
 				'attachments.filename',
 				'attachments.content',
+				'userEmail',
 			],
-			filterableAttributes: ['from', 'to', 'cc', 'bcc', 'timestamp', 'ingestionSourceId'],
+			filterableAttributes: [
+				'from',
+				'to',
+				'cc',
+				'bcc',
+				'timestamp',
+				'ingestionSourceId',
+				'userEmail',
+			],
 			sortableAttributes: ['timestamp'],
 		});
 	}
