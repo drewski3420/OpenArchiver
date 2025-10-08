@@ -35,6 +35,7 @@ export const ingestionSources = pgTable('ingestion_sources', {
 	syncState: jsonb('sync_state'),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  lastArchivedAt: timestamp('last_archived_at', { withTimezone: true }),
 });
 
 export const ingestionSourcesRelations = relations(ingestionSources, ({ one }) => ({
