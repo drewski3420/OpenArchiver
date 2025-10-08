@@ -110,7 +110,6 @@ export interface IngestionSource {
   lastArchivedAt?: Date | null;
 	lastSyncStatusMessage?: string | null;
 	syncState?: SyncState | null;
-  lastArchivedAt?: Date | null;
 }
 
 /**
