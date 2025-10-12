@@ -107,7 +107,7 @@ export interface IngestionSource {
 	credentials: IngestionCredentials;
 	lastSyncStartedAt?: Date | null;
 	lastSyncFinishedAt?: Date | null;
-  lastArchivedAt?: Date | null;
+	lastArchivedAt?: Date | null;
 	lastSyncStatusMessage?: string | null;
 	syncState?: SyncState | null;
 }
@@ -132,7 +132,7 @@ export interface UpdateIngestionSourceDto {
 	providerConfig?: Record<string, any>;
 	lastSyncStartedAt?: Date;
 	lastSyncFinishedAt?: Date;
-  lastArchivedAt?: Date;
+	lastArchivedAt?: Date;
 	lastSyncStatusMessage?: string;
 	syncState?: SyncState;
 }

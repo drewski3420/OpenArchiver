@@ -17,6 +17,7 @@ export interface IngestionSourceStats {
 	provider: string;
 	status: string;
 	storageUsed: number;
+  lastArchivedAt: Date;
 }
 
 export interface RecentSync {
