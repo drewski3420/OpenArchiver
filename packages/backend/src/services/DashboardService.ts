@@ -65,6 +65,10 @@ class DashboardService {
 				provider: ingestionSources.provider,
 				status: ingestionSources.status,
 				storageUsed: sql<number>`sum(${archivedEmails.sizeBytes})`.mapWith(Number),
+				// lastArchivedAt: most recent archivedAt for this ingestion source; map to ISO string or null
+				lastArchivedAt: sql<Date | null>`max(${archivedEmails.archivedAt})`.mapWith((d) =>
+					d ? new Date(d).toISOString() : null
+				),
 			})
 			.from(ingestionSources)
 			.leftJoin(archivedEmails, eq(ingestionSources.id, archivedEmails.ingestionSourceId))
